@@ -1,0 +1,54 @@
+
+
+Palabras = load 'AFINN-111.txt' using PigStorage ('\t') AS (pal:chararray, puntaje:int);
+
+Calif = load 'labeledTrainData.tsv' using PigStorage ('\t') AS (nro_calif:chararray, pts_calif:int, desc_calif:chararray);
+
+TopCalif_Pals = foreach Calif generate nro_calif, pts_calif, TOKENIZE(desc_calif) AS pals_calif_pts;
+// genera por cada calif nro_Calif (id del review), pts_calif (el puntaje del review) y el pals_calif_pts (el review sin basura<b></b>)
+
+// ahora por cada uno de esos review tiene q separar las palabras entonces por cada review genera una lista de pal (q seria por cada palabra dentro del review, el texto ya TOKENIZE) y genera un token(nombre de la col de pals) y va generando con el generate el nro de la clasif y el pal.token (q seria la palabra)
+
+Pals_Calif = foreach TopCalif_Pals {
+   pal = foreach pals_calif_pts generate token;
+   generate nro_calif, pal.token;
+   };
+
+// entonces el Pals_Calif te deberia dar una lista de id del review y una palabra de ese review
+// Pals_calif : {nro_calif,  {token}}
+
+Pals_Calif_FL = foreach Pals_Calif generate $0, FLATTEN($1);  
+
+// Palabras : {pal, puntaje }
+// Pals_calif_Fl : {nro_calif,  token }   el token es la palabra del review
+// primero necesitamos hacer un join entre palabras  quedando Palabras_del_review_con_su_puntaje: {token,nro_calif,pal,puntaje}
+
+Palabras_del_review_con_su_puntaje = join Pals_calif_FL by $1, Palabras by $0;
+describe Palabras_del_review_con_su_puntaje;
+
+// agrupar por review Palabras_del_review_con_su_puntaje, cosa de tener por review la los puntajes de cada palabras
+
+Reviews_grouped = group Palabras_del_review_con_su_puntaje by (nro_calif);
+
+// calculo el promedio por nro_calif
+
+Avg_por_Review = foreach Reviews_grouped generate group, AVG(nro_calif);
+
+dump Avg_por_Review;
+
+// no se si hay que hacer un FlaTTen porque el el group by segun tengo entendido los deja como  {group,{<>,<>,<>}}
+
+Avg_por_Review_FL = foreach Avg_por_Review generate $0, FLATTEN($1);
+
+// ahora hay q mostrar las cosas las 5 max y las 5 min. primero hay a hacer un order by y depues un dump limit 5
+
+Order_Min = order Avg_por_Review_FL by $0 desc;
+Order_Min_Limit = limit Order_Min 5;
+dump Order_Min_Limit;
+
+// no se si es acendent o acen o como sera
+
+Order_Max = order Avg_por_Review_FL by $0 acen;
+Order_Max_Limit = limit Order_Max 5;
+dump Order_Max_Limit;
+
