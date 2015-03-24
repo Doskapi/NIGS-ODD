@@ -1,0 +1,34 @@
+
+Palabras = load 'AFINN-111.txt' using PigStorage ('\t') AS (pal:chararray, puntaje:int);
+
+Calif = load 'labeledTrainData.tsv' using PigStorage ('\t') AS (nro_calif:chararray, pts_calif:int, desc_calif:chararray);
+
+TopCalif_Pals = foreach Calif generate nro_calif, pts_calif, TOKENIZE(desc_calif) AS pals_calif_pts;
+
+palabra dentro del review, el texto ya TOKENIZE) y genera un token(nombre de la col de pals) y va generando con el generate el nro de la clasif y el pal.token (q seria la palabra)
+
+Pals_Calif = foreach TopCalif_Pals {
+   pal = foreach pals_calif_pts generate token;
+   generate nro_calif, pal.token;
+   };
+
+Pals_Calif_FL = foreach Pals_Calif generate $0, FLATTEN($1);  
+
+Palabras_del_review_con_su_puntaje = join Pals_calif_FL by $1, Palabras by $0;
+describe Palabras_del_review_con_su_puntaje;
+
+Reviews_grouped = group Palabras_del_review_con_su_puntaje by (nro_calif);
+
+Avg_por_Review = foreach Reviews_grouped generate group, AVG(nro_calif);
+
+describe Avg_por_Review;
+
+Avg_por_Review_FL = foreach Avg_por_Review generate $0, FLATTEN($1);
+
+Order_Min = order Avg_por_Review_FL by $0 desc;
+Order_Min_Limit = limit Order_Min 5;
+dump Order_Min_Limit;
+
+Order_Max = order Avg_por_Review_FL by $0 acen;
+Order_Max_Limit = limit Order_Max 5;
+dump Order_Max_Limit;
