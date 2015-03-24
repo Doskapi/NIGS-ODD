@@ -29,6 +29,6 @@ Order_Min = order Avg_por_Review_FL by $0 desc;
 Order_Min_Limit = limit Order_Min 5;
 dump Order_Min_Limit;
 
-Order_Max = order Avg_por_Review_FL by $0 acen;
+Order_Max = order Avg_por_Review_FL by $0 asc;
 Order_Max_Limit = limit Order_Max 5;
 dump Order_Max_Limit;
