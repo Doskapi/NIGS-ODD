@@ -1,0 +1,34 @@
+# depslib dependency file v1.0
+1428185850 source:/home/nicolas/workspace/TpDatos/NIGS-ODD/TpDatos/archivoTexto.cpp
+	"archivoTexto.h"
+
+1428185850 /home/nicolas/workspace/TpDatos/NIGS-ODD/TpDatos/archivoTexto.h
+	<fstream>
+
+1428185851 source:/home/nicolas/workspace/TpDatos/NIGS-ODD/TpDatos/main.cpp
+	<iostream>
+	"archivoTexto.h"
+	"Review.h"
+
+1428185850 /home/nicolas/workspace/TpDatos/NIGS-ODD/TpDatos/Review.h
+	<fstream>
+	<iostream>
+
+1428185850 source:/home/nicolas/workspace/TpDatos/NIGS-ODD/TpDatos/Review.cpp
+	"Review.h"
+
+1428185850 source:/home/nicolas/workspace/TpDatos/NIGS-ODD/TpDatos/buscarPal.cpp
+	<iostream>
+	<fstream>
+	<string>
+	<iterator>
+	<sstream>
+	<vector>
+
+1428185850 source:/home/nicolas/workspace/TpDatos/NIGS-ODD/TpDatos/diccionarioConEliminacionDePalabras.cpp
+	<iostream>
+	<fstream>
+	<cstdlib>
+	<map>
+	<string>
+

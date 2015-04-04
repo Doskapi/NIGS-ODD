@@ -19,7 +19,7 @@ void imprimirDatos(string linea){
 	cout << unReview.getId() << endl << unReview.getBody() << endl;
 }
 
-int main(int argc, char **argv) {
+int construirReviews() {
   ArchivoTexto miArchivo("labeledTrainData.tsv");
   string linea;
   miArchivo.irAlPrincipio();
