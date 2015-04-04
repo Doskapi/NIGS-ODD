@@ -1,0 +1,37 @@
+Palabras = load 'AFINN-111.txt' using PigStorage ('\t') AS (pal:chararray, puntaje:int);
+
+Calif = load 'labeledTrainData.tsv' using PigStorage ('\t') AS (nro_calif:chararray, pts_calif:int, desc_calif:chararray);
+
+/*Calif = limit Calif 10;*/
+
+TopCalif_Pals = foreach Calif generate nro_calif, pts_calif, TOKENIZE(desc_calif) AS pals_calif_pts;
+
+Pals_Calif = foreach TopCalif_Pals {
+
+ pal = foreach pals_calif_pts generate token;
+
+ generate nro_calif, pal.token;
+
+ };
+
+Pals_Calif_FL = foreach Pals_Calif generate $0, FLATTEN($1);
+
+palabrasJoin = join Pals_Calif_FL by $1, Palabras by pal;
+
+palabrasConPuntaje = foreach palabrasJoin generate Pals_Calif_FL::nro_calif, Palabras::puntaje;
+
+idConPalabrasAgrupadas = group palabrasConPuntaje by Pals_Calif_FL::nro_calif;
+
+archivoPreparado = foreach idConPalabrasAgrupadas generate group, AVG(palabrasConPuntaje.puntaje) as Average;
+
+sortedDescendente = order archivoPreparado by Average desc;
+
+top5 = limit sortedDescendente 5;
+
+dump top5;
+
+sortedAscendente = order idTop by Average asc;
+
+less5 = limit sortedAscendente 5;
+
+dump less5;
