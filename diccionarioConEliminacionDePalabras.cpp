@@ -117,5 +117,3 @@ int main()
     cout << "En total se encontraron: " << diccionario.size() <<" palabras distintas"<< endl;
     return 0;
 }
-
-
