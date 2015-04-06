@@ -1,0 +1,49 @@
+# depslib dependency file v1.0
+1428183155 source:/home/sebas/TpDatos/archivoTexto.cpp
+	"archivoTexto.h"
+
+1428183157 /home/sebas/TpDatos/archivoTexto.h
+	<fstream>
+
+1428183159 source:/home/sebas/TpDatos/Review.cpp
+	"Review.h"
+
+1428183152 /home/sebas/TpDatos/Review.h
+	<fstream>
+	<iostream>
+
+1428182853 source:/home/sebas/TpDatos/buscarPal.cpp
+	<iostream>
+	<fstream>
+	<string>
+	<iterator>
+	<sstream>
+	<vector>
+
+1428198683 source:/home/sebas/TpDatos/construirReviews.cpp
+	<iostream>
+	"archivoTexto.h"
+	"Review.h"
+
+1428198699 source:/home/sebas/TpDatos/diccionarioConEliminacionDePalabras.cpp
+	<iostream>
+	<fstream>
+	<cstdlib>
+	<map>
+	<string>
+
+1428198851 source:/home/sebas/TpDatos/main.cpp
+	<iostream>
+	"archivoTexto.h"
+	"Review.h"
+
+1428248335 source:/home/sebas/2kpi/TpDatos/main.cpp
+	<iostream>
+	<fstream>
+	<string>
+	<iterator>
+	<sstream>
+	<vector>
+	<map>
+	<cstdlib>
+
