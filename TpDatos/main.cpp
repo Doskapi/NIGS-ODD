@@ -17,28 +17,73 @@ using namespace std;
 void limpiarBasura(string&, string);
 void sacarBasuraDelArchivo();
 bool buscarStopWord(string);
-void crearDiccionarioDeReviews();
-void crearDiccionarioDePalabrasConSuPuntaje();
+void crearDiccionarioDeReviews(map<string, int>&);
+void crearDiccionarioDePalabrasConSuPuntaje(map<string, int>&);
 
 int main(){
+    map<string, int> dicDePalPuntaje, dicDeReviewYCantDeVecesQueApareceLaPalabra;
+
     cout << "Funciones utiles para el tp" << endl;
-    cout << endl;
     cout << endl;
 
     sacarBasuraDelArchivo();
 
     cout << "Iniciando diccionario de palabras con su puntaje..." << endl;
-    crearDiccionarioDePalabrasConSuPuntaje();
+    crearDiccionarioDePalabrasConSuPuntaje(dicDePalPuntaje);
     cout << "DONE" << endl;
 
     cout << "Iniciando diccionario de palabras en los reviews..." << endl;
-    crearDiccionarioDeReviews();
+    crearDiccionarioDeReviews(dicDeReviewYCantDeVecesQueApareceLaPalabra);
     cout << "DONE" << endl;
 
     return 0;
 }
 
-void limpiarBasura(string &strConBasura, string strALimpiar){
+void sumarPuntajeDelReview()
+{
+         string line, id, clasificacionDelReview, review, palabraABuscar;
+    long int cantidadDeReviews, cantTotalDePalabras, cantEncontradas;
+    ifstream file;
+    file.open("labeledTrainData.tsv");
+
+    getline(file,line, '\n');
+    cout << "Lector del data set" << endl;
+
+    cout << "que palabra quiere buscar?" << endl;
+    getline(cin, palabraABuscar);
+    cantidadDeReviews = 0;
+    cantTotalDePalabras = 0;
+    cantEncontradas = 0;
+    while (!file.eof()){
+        getline(file, id,'\t' ); // lee el id del hasta el proximo tab
+        if (!id.empty()){ //por si hay alguna linea vacia
+            id = id.substr(1,id.length()-2);
+            getline(file, clasificacionDelReview, '\t' ); // lee la clasif del review hasta el proximo tab
+            getline(file, review, '\n' ); // lee hasta el proximo tab
+
+            limpiarBasura(review,"<br />");
+            limpiarBasura(review,"\\");
+            limpiarBasura(review,"");
+
+            cantidadDeReviews++;
+            cantTotalDePalabras = cantTotalDePalabras + review.length();
+
+            if (review.find(palabraABuscar) < review.length()){
+                // cout << id << endl;
+                cantEncontradas++;
+                // cout << id << " pos:" << review.find(palabraABuscar) << endl;
+            }
+        }
+    }
+
+    cout << "Se encontraron " << cantEncontradas << " reviews con la palabra \"" << palabraABuscar << "\"" << endl;
+    cout << "Promedio: " << cantTotalDePalabras << "/" << cantidadDeReviews << " = " << cantTotalDePalabras/cantidadDeReviews << endl;
+
+    file.close();
+}
+
+void limpiarBasura(string &strConBasura, string strALimpiar)
+{
     if(strConBasura.find(strALimpiar) < strConBasura.length()){
         strConBasura.replace(strConBasura.find(strALimpiar),strALimpiar.length(),"");
         if(strConBasura.find(strALimpiar) < strConBasura.length()){
@@ -47,7 +92,8 @@ void limpiarBasura(string &strConBasura, string strALimpiar){
     }
 }
 
-void sacarBasuraDelArchivo(){
+void sacarBasuraDelArchivo()
+{
     string line, id, clasificacionDelReview, review, palabraABuscar;
     long int cantidadDeReviews, cantTotalDePalabras, cantEncontradas;
     ifstream file;
@@ -89,7 +135,6 @@ void sacarBasuraDelArchivo(){
     file.close();
 }
 
-
 /*Retorna true si la palabra es un stopWord, caso contrario retorna false*/
 bool buscarStopWord(string word)
 {
@@ -130,12 +175,11 @@ bool buscarStopWord(string word)
     }
 }
 
-void crearDiccionarioDeReviews()
+void crearDiccionarioDeReviews(map<string, int> &diccionario)
 {
     ifstream archivo;
     string word, linea;
     char c;
-    map<string, int> diccionario;
     bool esStopWord;
     int cant;
 
@@ -191,26 +235,24 @@ void crearDiccionarioDeReviews()
     }
 
 
-//
-//    //Muestra el diccionario completo por pantalla
-//    map<string, int>::iterator it = diccionario.begin();
-//    while (it != diccionario.end() )
-//    {
-//        cout << it->first << "      " <<it->second << endl;
-//        it ++;
-//    }
+    //Muestra el diccionario completo por pantalla
+    map<string, int>::iterator it = diccionario.begin();
+    while (it != diccionario.end() )
+    {
+        cout << it->first << "      " <<it->second << endl;
+        it ++;
+    }
 
     cout << "En total se encontraron: " << diccionario.size() <<" palabras distintas"<< endl;
     archivo.close();
  }
 
-
-void crearDiccionarioDePalabrasConSuPuntaje()
+void crearDiccionarioDePalabrasConSuPuntaje(map<string, int> &diccionario)
 {
     ifstream archivo;
     string palabra, puntaje;
     int puntajeComoInt;
-    map<string, int> diccionario;
+
 
     archivo.open("AFINN-111.tsv");
 

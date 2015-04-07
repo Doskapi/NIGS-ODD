@@ -47,3 +47,13 @@
 	<map>
 	<cstdlib>
 
+1428351815 source:/home/sebas/NIGS-ODD/TpDatos/main.cpp
+	<iostream>
+	<fstream>
+	<string>
+	<iterator>
+	<sstream>
+	<vector>
+	<map>
+	<cstdlib>
+
