@@ -1,0 +1,67 @@
+===============================================================
+===En Bash===
+
+Editar este archivo de alguna de estas dos maneras 
+
+gedit ~/.bashrc &
+o
+vim ~/.bashrc
+
+y poner alias al final del archivo, si se quiere, se puede poner:
+
+##########################################################
+#       ALIAS                                            #
+##########################################################
+
+para demilitar donde estan los alias hechos por uno.
+el # es comentario
+Luego de hacer los alias que uno necesita, cerrar todas las terminales
+y volver a abrir la consola para que tome efecto
+
+===Alias en bash===
+
+alias update='sudo apt-get update'
+alias upgrade='sudo apt-get upgrade'
+alias notes='cd ~/Notes'
+alias docu='cd ~/Documents'
+alias tp='cd ~/NIGS-ODD'
+#howto es un archivo con la lista de comando de linux
+comandos() { cd ~/Notes; cat howto | grep $1; cd -; }
+alias comand=comandos
+
+
+===============================================================
+===En Fish===
+
+Editar el archivo de alguna de estas dos maneras
+
+gedit ~/.config/fish/config.fish &
+o
+vim ~/.config/fish/config.fish
+
+y poner alias al final del archivo, si se quiere, se puede poner:
+
+##########################################################
+#       ALIAS                                            #
+##########################################################
+
+para demilitar donde estan los alias hechos por uno.
+(a veces este archivo viene vacio) el # es comentario
+Luego de hacer los alias que uno necesita, cerrar todas las terminales
+y volver a abrir la consola para que tome efecto
+
+===Alias en Fish===
+
+alias update='sudo apt-get update'
+alias upgrade='sudo apt-get upgrade'
+alias notes='cd ~/Notes'
+alias docu='cd ~/Documents'
+alias tp='cd ~/NIGS-ODD'
+#how to es un archivo con la lista de comando de linux
+function comand
+	cd ~/Notes
+	cat howto | grep $argv
+	cd -
+end
+
+
