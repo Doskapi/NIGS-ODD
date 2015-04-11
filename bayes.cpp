@@ -3,9 +3,10 @@
 #include <cstdlib>
 #include <map>
 #include <string>
+#include <cmath>
 
-#define FILTRO 250
-#define MULTIPLICADOR 1000
+#define FILTRO 50
+
 using namespace std;
 
 bool esLetra (char c);
@@ -13,15 +14,14 @@ bool buscarStopWord(string word);
 void contarReviews(float &reviewsTotales, float &reviewsPositivos, float &reviewsNegativos);
 void crearDiccionariosDeReviews(map<string, float> &diccionarioT, map<string, float> &diccionarioP, map<string, float> &diccionarioN);
 void filtrarDiccionariosDeReviews(map<string, float> &diccionarioT, map<string, float> &diccionarioP, map<string, float> &diccionarioN);
+void filtrarDiccionario(map<string, float> &diccionario);
 void mostrarDiccionariosDeReviews(map<string, float> &diccionarioT, map<string, float> &diccionarioP, map<string, float> &diccionarioN);
-void calcularProbabilidadesDePalabrasPositivas(map<string, float> &diccionarioT, map<string, float> &diccionarioP, map<string, float> &probabilidadesP);
-void calcularProbabilidadesDePalabrasNegativas(map<string, float> &diccionarioT, map<string, float> &diccionarioN, map<string, float> &probabilidadesN);
+void calcularProbabilidadesDePalabras(map<string, float> &diccionarioT, map<string, float> &diccionario, map<string, float> &probabilidades);
 void clasificarReview(map<string, float> &probabilidadesP, map<string, float> &probabilidadesN, float reviewsTotales, float reviewsPositivos, float reviewsNegativos);
 
 int main()
 {
-    map<string, float> diccionarioT, diccionarioP, diccionarioN;
-    map<string, float> probabilidadesP, probabilidadesN;
+    map<string, float> diccionarioT, diccionarioP, diccionarioN, probabilidadesP, probabilidadesN;
     float reviewsTotales, reviewsPositivos, reviewsNegativos;
 
     cout << "Contando cantidad de reviews positivos y negativos..." << endl;
@@ -32,9 +32,9 @@ int main()
     filtrarDiccionariosDeReviews(diccionarioT, diccionarioP, diccionarioN);
     mostrarDiccionariosDeReviews(diccionarioT, diccionarioP, diccionarioN);
     cout << "Calculando Probabilidades Positivas" << endl;
-    calcularProbabilidadesDePalabrasPositivas(diccionarioT, diccionarioP, probabilidadesP);
+    calcularProbabilidadesDePalabras(diccionarioT, diccionarioP, probabilidadesP);
     cout << "Calculando Probabilidades Negativas" << endl;
-    calcularProbabilidadesDePalabrasNegativas(diccionarioT, diccionarioN, probabilidadesN);
+    calcularProbabilidadesDePalabras(diccionarioT, diccionarioN, probabilidadesN);
     cout << "En probabilidadesP hay  " << probabilidadesP.size() << endl;
     cout << "En probabilidadesN hay  " << probabilidadesN.size() << endl;
     cout << " Clasificando reviews..." << endl;
@@ -190,38 +190,26 @@ void crearDiccionariosDeReviews(map<string, float> &diccionarioT, map<string, fl
  /* Filtra de los diccionarios aquellas palabras que aparezcan menos de FILTRO veces */
  void filtrarDiccionariosDeReviews(map<string, float> &diccionarioT, map<string, float> &diccionarioP, map<string, float> &diccionarioN)
  {
-     map<string, float>::iterator iterador;
+     filtrarDiccionario(diccionarioT);
+     filtrarDiccionario(diccionarioP);
+     filtrarDiccionario(diccionarioN);
+}
 
-     iterador = diccionarioT.begin();
-     while (iterador != diccionarioT.end() )
+/* Filtra un diccionario aquellas palabras que aparezcan menos de FILTRO veces */
+void filtrarDiccionario(map<string, float> &diccionario)
+{
+    map<string, float>::iterator iterador;
+
+     iterador = diccionario.begin();
+     while (iterador != diccionario.end() )
      {
          if((iterador->second) < FILTRO)
          {
-             diccionarioT.erase(iterador);
+             diccionario.erase(iterador);
          }
          iterador ++;
      }
-
-     iterador = diccionarioP.begin();
-     while (iterador != diccionarioP.end() )
-     {
-         if((iterador->second) < FILTRO)
-         {
-             diccionarioP.erase(iterador);
-         }
-         iterador ++;
-     }
-
-     iterador = diccionarioN.begin();
-     while (iterador != diccionarioN.end() )
-     {
-         if((iterador->second) < FILTRO)
-         {
-             diccionarioN.erase(iterador);
-         }
-         iterador ++;
-     }
- }
+}
 
  /* Muestra por pantalla los diccionarios con las palabras y sus cantidades */
  void mostrarDiccionariosDeReviews(map<string, float> &diccionarioT, map<string, float> &diccionarioP, map<string, float> &diccionarioN)
@@ -235,25 +223,6 @@ void crearDiccionariosDeReviews(map<string, float> &diccionarioT, map<string, fl
     }
 
     cout << "En total se encontraron: " << diccionarioT.size() <<" palabras distintas"<< endl;
-
-    //Muestra el diccionario de palabras Positivas
-//    iterador = diccionarioP.begin();
-//    while (iterador != diccionarioP.end() )
-//    {
-//        cout << iterador->first << "      " <<iterador->second << endl;
-//        iterador ++;
-//    }
-
-
-
-    //Muestra el diccionario de palabras Negativas
-//    iterador = diccionarioN.begin();
-//    while (iterador != diccionarioN.end() )
-//    {
-//        cout << iterador->first << "      " <<iterador->second << endl;
-//        iterador ++;
-//    }
-
     cout << "En total se encontraron: " << diccionarioP.size() <<" palabras positivas"<< endl;
     cout << "En total se encontraron: " << diccionarioN.size() <<" palabras negativas"<< endl;
  }
@@ -315,94 +284,49 @@ bool buscarStopWord(string word)
 }
 
 /* Calcula las probabilidades de todas las palabras positivas */
-void calcularProbabilidadesDePalabrasPositivas(map<string, float> &diccionarioT, map<string, float> &diccionarioP, map<string, float> &probabilidadesP)
+void calcularProbabilidadesDePalabras(map<string, float> &diccionarioT, map<string, float> &diccionario, map<string, float> &probabilidades)
 {
-    float palabrasTotales, palabrasPositivas, cantidad, total, promedio;
+    float palabrasTotales, palabrasACalcularProbabilidad, cantidad, total, promedio;
     string word;
 
     palabrasTotales = diccionarioT.size();
-    palabrasPositivas = 0;
+    palabrasACalcularProbabilidad = 0;
 
-    map<string, float>::iterator iterador = diccionarioP.begin();
-    while (iterador != diccionarioP.end() )
+    map<string, float>::iterator iterador = diccionario.begin();
+    while (iterador != diccionario.end() )
     {
-        palabrasPositivas += iterador->second;
+        palabrasACalcularProbabilidad += iterador->second;
         iterador ++;
     }
 
-    total = palabrasTotales + palabrasPositivas;
+    total = palabrasTotales + palabrasACalcularProbabilidad;
 
     iterador = diccionarioT.begin();
     while (iterador != diccionarioT.end())
     {
         word = iterador->first;
-        map<string, float>::iterator iteradorP = diccionarioP.find(word);
-        if(iteradorP != diccionarioP.end())
+        map<string, float>::iterator iteradorP = diccionario.find(word);
+        if(iteradorP != diccionario.end())
         {
             cantidad = iteradorP->second + 1;
-            promedio = (cantidad/total)*MULTIPLICADOR;
-            probabilidadesP.insert(pair<string, float> (word, promedio));
+            promedio = (cantidad/total);
+            probabilidades.insert(pair<string, float> (word, promedio));
         }
         else
         {
-            promedio = (1/total)*MULTIPLICADOR;
-            probabilidadesP.insert(pair<string, float> (word, promedio));
+            promedio = (1/total);
+            probabilidades.insert(pair<string, float> (word, promedio));
         }
         iterador ++;
     }
 
-    map<string, float>::iterator iteradorPP = probabilidadesP.begin();
-    while (iteradorPP != probabilidadesP.end())
-    {
-        cout << "La palabra  " << iteradorPP->first << "  Tiene un promedio " << iteradorPP->second << endl;
-        iteradorPP ++;
-    }
-
-}
-
-/*Calcula las probabilidades de todas las palabras negativas*/
-void calcularProbabilidadesDePalabrasNegativas(map<string, float> &diccionarioT, map<string, float> &diccionarioN, map<string, float> &probabilidadesN)
-{
-    float palabrasTotales, palabrasNegativas, cantidad, total, promedio;
-    string word;
-
-    palabrasTotales = diccionarioT.size();
-    palabrasNegativas = 0;
-
-    map<string, float>::iterator iterador = diccionarioN.begin();
-    while (iterador != diccionarioN.end() )
-    {
-        palabrasNegativas += iterador->second;
-        iterador ++;
-    }
-
-    total = palabrasTotales + palabrasNegativas;
-
-    iterador = diccionarioT.begin();
-    while (iterador != diccionarioT.end())
-    {
-        word = iterador->first;
-        map<string, float>::iterator iteradorN = diccionarioN.find(word);
-        if(iteradorN != diccionarioN.end())
-        {
-            cantidad = iteradorN->second + 1;
-            promedio = (cantidad/total)*MULTIPLICADOR;
-            probabilidadesN.insert(pair<string, float> (word, promedio));
-        }
-        else
-        {
-            promedio = (1/total)*MULTIPLICADOR;
-            probabilidadesN.insert(pair<string, float> (word, promedio));
-        }
-        iterador ++;
-    }
-
-    map<string, float>::iterator iteradorPN = probabilidadesN.begin();
-    while (iteradorPN != probabilidadesN.end())
-    {
-        cout << "La palabra  " << iteradorPN->first << "  Tiene un promedio " << iteradorPN->second << endl;
-        iteradorPN ++;
-    }
+    //Muestra por pantalla las palabras con su probabilidad
+//    map<string, float>::iterator iteradorM = probabilidades.begin();
+//    while (iteradorM != probabilidades.end())
+//    {
+//        cout << "La palabra  " << iteradorM->first << "  Tiene un promedio " << iteradorM->second << endl;
+//        iteradorM ++;
+//    }
 }
 
 /*Realiza la clasificacion correspondiente de un archivo con reviews */
@@ -448,20 +372,19 @@ void clasificarReview(map<string, float> &probabilidadesP, map<string, float> &p
                     esStopWord = buscarStopWord(word);
                     if(!esStopWord)
                     {
-                        // Busco si aparece esa palabra en las probabilidades Positivas y multiplico por su probabilidad
+                        // Busco si aparece esa palabra en las probabilidades Positivas y sumo el logaritmo de su probabilidad
                         map<string, float>::iterator iteradorP = probabilidadesP.find(word);
                         if(iteradorP != probabilidadesP.end())
                         {
-                            probabilidadDeSerPositivo *= (iteradorP->second);
+                            probabilidadDeSerPositivo += log(iteradorP->second);
                         }
 
-                        // Busco si aparece esa palabra en las probabilidades Negativas y multiplico por su probabilidad
+                        // Busco si aparece esa palabra en las probabilidades Negativas y sumo el logaritmo de su probabilidad
                         map<string, float>::iterator iteradorN = probabilidadesN.find(word);
                         if(iteradorN != probabilidadesN.end())
                         {
-                            probabilidadDeSerNegativo *= (iteradorN->second);
+                            probabilidadDeSerNegativo += log(iteradorN->second);
                         }
-
                         word.clear();
                     }
                 }
@@ -489,7 +412,6 @@ void clasificarReview(map<string, float> &probabilidadesP, map<string, float> &p
             reviewsSinClasificar.insert( pair<string, double> (numeroID, 0));
             cout << "PROB SER POSITIVO: " << probabilidadDeSerPositivo << "  PROB DE SER NEGATIVO: " << probabilidadDeSerNegativo << endl;
         }
-        //cout << "PROB POSITIVO: " << probabilidadDeSerPositivo << " PROB NEGATIVO: " << probabilidadDeSerNegativo << endl;
     }
 
     archivo.close();
