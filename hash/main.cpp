@@ -15,20 +15,28 @@
 using namespace std;
 
 int main(){
-    
+
     Hash myHash;
     string stringToHash;
     int returnValue;
 
     cout << endl;
     cout << "Prueba de Hash" << endl;
-    cout << "Inserte string a hashear: " << endl;
-    cin >> stringToHash;
-    cout << endl;
+    
+    for (int i = 0; i < 3; ++i)
+    {
+        cout << endl;
+        cout << "=============================================" << endl;
+        cout << "Inserte string a hashear: ";
+        cin >> stringToHash;
+        cout << endl;
 
-    returnValue = myHash.hash(stringToHash);
+        returnValue = myHash.hash(stringToHash);
+        cout << "El valor del hash \"" << stringToHash << "\" es: " << returnValue << endl;
 
-    cout << "el valor del hash \"" << stringToHash << "\" es: " << returnValue << endl;
+        myHash.addItem(stringToHash);
+        myHash.printTable();
 
+    }
     return 0;
 }
