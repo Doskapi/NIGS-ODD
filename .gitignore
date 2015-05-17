@@ -29,3 +29,5 @@
 
 # Ignore .layout of CodeBlocks
 *.layout
+/Perceptron/bin/Debug/Perceptron
+/Perceptron/Perceptron.depend

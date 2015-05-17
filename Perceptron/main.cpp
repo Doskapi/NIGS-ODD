@@ -5,6 +5,7 @@
 
 using namespace std;
 
+//Dado una frase cualquiera y el tamanio del n grama devuleve
 list <string>  construirNgrama(string frase, int tamanioNgrama){
 	list <string> listaNgramas;
     string unNgrama;
@@ -14,7 +15,6 @@ list <string>  construirNgrama(string frase, int tamanioNgrama){
         for (int i=0; (i < tamanioNgrama); i++){
             unNgrama += frase.at(pos + i);
         }
-        cout << unNgrama <<endl;
         listaNgramas.push_back(unNgrama);
 	}
 	return listaNgramas;
@@ -23,8 +23,13 @@ list <string>  construirNgrama(string frase, int tamanioNgrama){
 int main()
 {
     string frase = "una frase loca cualquiera en el para mostrar\n";
-    list <string> listaNgramas = construirNgrama(frase, 3);
-    //string ll =  (string) listaNgramas.pop_front();
-    //cout << ll << endl;
+    list<string> listaNgramas = construirNgrama(frase, 3);
+    list<string>::iterator iterador; //Esta es la forma de recorrer esta lista
+    int i = 0;
+    for( iterador = listaNgramas.begin(); iterador != listaNgramas.end(); iterador++ ){
+        cout << i << ") " ;
+        cout << *iterador << endl;
+        i++;
+    }
     return 0;
 }
