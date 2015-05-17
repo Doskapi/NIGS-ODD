@@ -17,9 +17,19 @@ class Hash
         Hash();
         virtual ~Hash();
         int hash(string key);
+        int hashPearson(string key);
+        int getTableSize();
+        void setTableSize(int tSize);
+        void addItem(string value);
+        void printTable();
     protected:
     private:
-        int tableSize;
+        static const int tableSize = 10;
+        struct item
+        {
+            int value;
+        };
+        item* hashTable[tableSize];
 };
 
 #endif // HASH_H
