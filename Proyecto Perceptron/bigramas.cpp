@@ -17,11 +17,3 @@ list <string>  construirBigrama(string frase){
 	return listaBigramas;
 }
 
-int main(int argc, char **argv) {
-    string frase;
-    frase = "Una frase loca cualquiera\n";
-    list <string> lista = construirBigrama(frase);
-    cout << lista << endl;
-    return 0;
-}
-
