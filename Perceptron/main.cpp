@@ -9,8 +9,9 @@ using namespace std;
 list <string>  construirNgrama(string frase, int tamanioNgrama){
 	list <string> listaNgramas;
 	string unNgrama;
+	frase = ("$" + frase + "$");
 	int largo = frase.size();
-	for (int pos=0;pos < (largo - tamanioNgrama); pos++){
+	for (int pos=0;(pos < (largo - tamanioNgrama + 1)); pos++){
         unNgrama = "";
         for (int i=0; (i < tamanioNgrama); i++){
             unNgrama += frase.at(pos + i);
@@ -22,7 +23,7 @@ list <string>  construirNgrama(string frase, int tamanioNgrama){
 
 int main()
 {
-    string frase = "una frase loca cualquiera en el para mostrar\n";
+    string frase = "una frase loca cualquiera en el para mostrar fontela bigote";
     list<string> listaNgramas = construirNgrama(frase, 3);
     list<string>::iterator iterador; //Esta es la forma de recorrer esta lista
     int i = 0;
