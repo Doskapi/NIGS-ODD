@@ -8,7 +8,7 @@ using namespace std;
 //Dado una frase cualquiera y el tamanio del n grama devuleve
 list <string>  construirNgrama(string frase, int tamanioNgrama){
 	list <string> listaNgramas;
-    string unNgrama;
+	string unNgrama;
 	int largo = frase.size();
 	for (int pos=0;pos < (largo - tamanioNgrama); pos++){
         unNgrama = "";
