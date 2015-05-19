@@ -4,6 +4,7 @@
 #include <iostream>
 #include <list>
 #include "funciones.h"
+#include "archivos.h"
 
 using namespace std;
 
@@ -14,6 +15,13 @@ int main() {
     list<string>::iterator iterador; //Esta es la forma de recorrer esta lista
     int i = 0;
     for( iterador = listaNgramas.begin(); iterador != listaNgramas.end(); iterador++ ){
+        cout << i << ") " ;
+        cout << *iterador << endl;
+        i++;
+    }
+    list<string> listaStopWords = crearListaDeStopWords();
+    i = 0;
+    for( iterador = listaStopWords.begin(); iterador != listaStopWords.end(); iterador++ ){
         cout << i << ") " ;
         cout << *iterador << endl;
         i++;
