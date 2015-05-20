@@ -1,14 +1,56 @@
+
 //Inclusiones necesarias
-#include <fstream>
-#include <sstream>
-#include <iostream>
-#include <list>
-#include <stdio.h>
-#include <string.h>
 #include "funciones.h"
 
-using namespace std;
+//Constantes para las funciones hash
+#define FNV_PRIME_32 16777619
+#define FNV_OFFSET_32 2166136261U
+#define FNV_PRIME_64 1099511628211
+#define FNV_OFFSET_64 14695981039346656037U
 
+//utiliza FNV32 para hashear un string y normaliza a la tabla de hash
+int hash32(string key, unsigned long int tableSize)
+{
+    int index;
+    index = FNV32(key); 
+    index = index%tableSize;
+    return index;
+}
+
+uint32_t FNV32(string s)
+{
+    // Hash FNV 32
+    int a = s.size();
+    uint32_t hash = FNV_OFFSET_32;
+    for(int i = 0; i < a; i++)
+    {
+        hash = hash ^ (s[i]); 
+        hash = hash * FNV_PRIME_32; 
+    }
+    return hash;
+} 
+
+//utiliza FNV64 para hashear un string y normaliza a la tabla de hash
+int hash64(string key, unsigned long int tableSize)
+{
+    int index;
+    index = FNV64(key); 
+    index = index%tableSize;
+    return index;
+} 
+
+uint64_t FNV64(string s)
+{
+    // Hash FNV 64
+    int a = s.size();
+    uint64_t hash = FNV_OFFSET_64;
+    for(int i = 0; i < a; i++)
+    {
+        hash = hash ^ (s[i]);
+        hash = hash * FNV_PRIME_64;
+    }
+    return hash;
+} 
 
 int contarPalabras(string frase){
     int cantidad = 0;

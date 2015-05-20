@@ -14,17 +14,54 @@ int main() {
     list<string> listaNgramas = construirNgrama(frase, 3);
     list<string>::iterator iterador; //Esta es la forma de recorrer esta lista
     int i = 0;
-    for( iterador = listaNgramas.begin(); iterador != listaNgramas.end(); iterador++ ){
+    for (iterador = listaNgramas.begin(); iterador != listaNgramas.end(); iterador++ ){
         cout << i << ") " ;
         cout << *iterador << endl;
         i++;
     }
     list<string> listaStopWords = crearListaDeStopWords();
     i = 0;
-    for( iterador = listaStopWords.begin(); iterador != listaStopWords.end(); iterador++ ){
+    for (iterador = listaStopWords.begin(); iterador != listaStopWords.end(); iterador++ ){
         cout << i << ") " ;
         cout << *iterador << endl;
         i++;
     }
+
+    string stringToHash;
+    uint32_t returnValue32;
+    uint64_t returnValue64;
+    unsigned long int tableSize = 1000; //deberia ser 2^25 = 33554432
+    unsigned long int hashTable[tableSize];
+    
+    for (int i = 0; i < tableSize; i++)
+    {
+        hashTable[i] = 0;
+    }
+
+    for (int i = 0; i < 3; ++i)
+    {
+        cout << endl;
+        cout << "Prueba de Hash" << endl;
+        cout << "=============================================" << endl;
+        cout << "Inserte string a hashear: ";
+        cin >> stringToHash;
+        cout << endl;
+
+        returnValue32 = hash32(stringToHash, tableSize);
+        cout << "Hash32: " << returnValue32 << endl;
+        // aca deberia poner el dato que se almacena en el hash
+        hashTable[returnValue32] = tableSize;
+    }
+    
+    cout << "[pos]:hashvalue" << endl;
+    for (int j = 0; j < tableSize; j++)
+    {       
+        cout << "["<< j << "]:" << hashTable[j] << "  ";
+        if ((j%9 == 0) && (j>1))
+        {
+            cout << endl;
+        }
+    }
+    cout << endl;
     return 0;
 }
