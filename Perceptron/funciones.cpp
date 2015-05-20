@@ -12,7 +12,7 @@
 int hash32(string key, unsigned long int tableSize)
 {
     int index;
-    index = FNV32(key); 
+    index = FNV32(key);
     index = index%tableSize;
     return index;
 }
@@ -24,20 +24,20 @@ uint32_t FNV32(string s)
     uint32_t hash = FNV_OFFSET_32;
     for(int i = 0; i < a; i++)
     {
-        hash = hash ^ (s[i]); 
-        hash = hash * FNV_PRIME_32; 
+        hash = hash ^ (s[i]);
+        hash = hash * FNV_PRIME_32;
     }
     return hash;
-} 
+}
 
 //utiliza FNV64 para hashear un string y normaliza a la tabla de hash
 int hash64(string key, unsigned long int tableSize)
 {
     int index;
-    index = FNV64(key); 
+    index = FNV64(key);
     index = index%tableSize;
     return index;
-} 
+}
 
 uint64_t FNV64(string s)
 {
@@ -50,7 +50,7 @@ uint64_t FNV64(string s)
         hash = hash * FNV_PRIME_64;
     }
     return hash;
-} 
+}
 
 int contarPalabras(string frase){
     int cantidad = 0;
@@ -89,6 +89,16 @@ list <string>  construirNgrama(string frase, int tamanioNgrama){
         }
     } else listaNgramas.push_front(frase);
 	return listaNgramas;
+}
+
+/* Retorna true si la palabra es un stopWord, caso contrario retorna false */
+bool buscarStopWord(string word, list<string> listaStopWords )
+{
+    list<string>::iterator iterador;
+    for (iterador = listaStopWords.begin(); iterador != listaStopWords.end(); iterador++ ){
+        if (*iterador == word) return true;
+    }
+    return false;
 }
 
 

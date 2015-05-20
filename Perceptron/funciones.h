@@ -16,11 +16,12 @@ int contarPalabras(string frase);
 
 list <string>  construirNgrama(string, int);
 
-uint32_t FNV32(string s); 
+bool buscarStopWord(string word,list<string> listaStopWords);
+
+uint32_t FNV32(string s);
 
 int hash32(string key, unsigned long int tableSize);
 
 uint64_t FNV64(string s);
 
 int hash64(string key, unsigned long int tableSize);
- 
