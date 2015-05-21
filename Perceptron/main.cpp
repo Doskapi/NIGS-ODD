@@ -8,8 +8,7 @@
 
 using namespace std;
 
-
-int main() {
+void pruebas(){
     string frase = "una frase loca para mostrar que este n grama si funciona correctamente saludos";
     list<string> listaNgramas = construirNgrama(frase, 3);
     list<string>::iterator iterador; //Esta es la forma de recorrer esta lista
@@ -26,6 +25,8 @@ int main() {
         cout << *iterador << endl;
         i++;
     }
+
+    cout << buscarStopWord("to",listaStopWords) << endl;
 
     string stringToHash;
     uint32_t returnValue32;
@@ -53,6 +54,7 @@ int main() {
     }
 
     cout << "[pos]:hashvalue" << endl;
+
     for (int j = 0; j < (int)tableSize; j++)
     {
         cout << "["<< j << "]:" << hashTable[j] << "  ";
@@ -62,5 +64,9 @@ int main() {
         }
     }
     cout << endl;
+}
+
+int main() {
+    //pruebas();
     return 0;
 }
