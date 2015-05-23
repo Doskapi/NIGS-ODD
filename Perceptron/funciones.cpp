@@ -92,7 +92,7 @@ list <string>  construirNgrama(string frase, int tamanioNgrama){
 }
 
 /* Retorna true si la palabra es un stopWord, caso contrario retorna false */
-bool buscarStopWord(string word, list<string> listaStopWords )
+bool buscarStopWord(string word, list<string> & listaStopWords )
 {
     list<string>::iterator iterador;
     for (iterador = listaStopWords.begin(); iterador != listaStopWords.end(); iterador++ ){
@@ -101,4 +101,10 @@ bool buscarStopWord(string word, list<string> listaStopWords )
     return false;
 }
 
+void incrementar(list<unsigned int> & hashTable,unsigned long int posicion ){
+    unsigned long int k = 0;
+    list<unsigned int>::iterator iter;
+    for (iter = hashTable.begin();(k < posicion); iter++ ) k++;
+    *iter = *iter + 1;
+}
 
