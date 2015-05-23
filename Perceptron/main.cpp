@@ -6,7 +6,15 @@
 #include "funciones.h"
 #include "archivos.h"
 
+#define TAMANIO_DE_LA_TABLA 50 //33554432
+#define TAMANIO_DE_NGRAMAS 2
+
 using namespace std;
+
+struct cuerpoConHash {
+    bool sentiment;
+    list<unsigned short int> hashTable;
+};
 
 void pruebas(){
     string frase = "una frase loca para mostrar que este n grama si funciona correctamente saludos";
@@ -65,7 +73,32 @@ void pruebas(){
     cout << endl;
 }
 
+map<string,cuerpoConHash> hashearNgramas(map<string,cuerpoConNgramas> diccionario,unsigned long int tablesize) {
+
+    map<string, cuerpoConHash> mapaFinal;
+    /*cuerpoConHash unCuerpo;
+    string returnValue32;
+    for (map<string,cuerpoConNgramas>::iterator it=diccionario.begin(); it!=diccionario.end(); ++it){
+        list <unsigned short int> hashTable (tableSize);
+        unCuerpo.sentiment = it->second.sentiment;
+        returnValue32 = hash32(stringToHash, tableSize);
+        incrementar(hashTable, returnValue32);
+        unCuerpo.hashTable = it->second.listaReview;
+        mapaFinal[it->first] = unCuerpo;
+    }*/
+    return mapaFinal;
+}
+
+void entrenar() {
+    int tamanioNgramas = TAMANIO_DE_NGRAMAS;
+    unsigned long int tableSize = TAMANIO_DE_LA_TABLA;
+    map<string, cuerpoConNgramas> diccionario = crearDiccionariosDeReviewsPerceptron(tamanioNgramas);
+    cout << "Diccionario creado con N gramas" << endl;
+    map<string, cuerpoConHash> diccionarioHasheado = hashearNgramas(diccionario, tableSize);
+}
+
 int main() {
-    pruebas();
+    //pruebas();
+    entrenar();
     return 0;
 }

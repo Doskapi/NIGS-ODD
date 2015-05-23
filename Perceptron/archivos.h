@@ -13,5 +13,23 @@
 
 using namespace std;
 
+struct cuerpoDelReview {
+    bool sentiment;
+    string review;
+};
+
+struct cuerpoConNgramas {
+    bool sentiment;
+    list<string> listaReview;
+};
+
+bool esLetra (char c);
 
 list <string>  crearListaDeStopWords();
+
+void crearDiccionarioInicial(map<string, cuerpoDelReview> &diccionario);
+
+map<string, cuerpoConNgramas> obtenerNgramas(map<string, cuerpoDelReview> &diccionario, int tamanio);
+
+map<string,cuerpoConNgramas> crearDiccionariosDeReviewsPerceptron(int tamanio);
+

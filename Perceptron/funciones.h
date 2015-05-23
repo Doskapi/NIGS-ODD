@@ -28,3 +28,4 @@ bool buscarStopWord(string word,list<string> & listaStopWords);
 
 //Incrementa en uno en la posicion indicada;
 void incrementar(list<unsigned int> & hashTable,unsigned long int posicion );
+
