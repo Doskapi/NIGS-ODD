@@ -40,11 +40,11 @@ void pruebas(){
     uint32_t returnValue32;
     unsigned long int tableSize = 20;//33554432; //deberia ser 2^25 = 33554432
     //unsigned long int hashTable[tableSize];
-    list<unsigned int> hashTable (tableSize);
-    list<unsigned int>::iterator iter; //Esta es la forma de recorrer esta lista
-    for (iter = hashTable.begin(); iter != hashTable.end(); iter++ ){
-        *iter = 0;
-    }
+    list<unsigned short int> hashTable (tableSize);
+    list<unsigned short int>::iterator iter; //Esta es la forma de recorrer esta lista
+    //for (iter = hashTable.begin(); iter != hashTable.end(); iter++ ){
+    //    *iter = 0;
+    //}
 
     for (int i = 0; i < 3; ++i)
     {
@@ -73,19 +73,21 @@ void pruebas(){
     cout << endl;
 }
 
-map<string,cuerpoConHash> hashearNgramas(map<string,cuerpoConNgramas> diccionario,unsigned long int tablesize) {
+map<string,cuerpoConHash> hashearNgramas(map<string,cuerpoConNgramas> diccionario,unsigned long int tableSize) {
 
     map<string, cuerpoConHash> mapaFinal;
-    /*cuerpoConHash unCuerpo;
-    string returnValue32;
+    cuerpoConHash unCuerpo;
+    unsigned long int returnValue;
     for (map<string,cuerpoConNgramas>::iterator it=diccionario.begin(); it!=diccionario.end(); ++it){
-        list <unsigned short int> hashTable (tableSize);
+        list <unsigned short int> hashTable(tableSize);
         unCuerpo.sentiment = it->second.sentiment;
-        returnValue32 = hash32(stringToHash, tableSize);
-        incrementar(hashTable, returnValue32);
-        unCuerpo.hashTable = it->second.listaReview;
+        for (list<string>::iterator iterador=it->second.listaReview.begin(); iterador!=it->second.listaReview.end(); ++iterador){
+            returnValue = hash32(*iterador, tableSize);
+            incrementar(hashTable, returnValue);
+        }
+        unCuerpo.hashTable = hashTable;
         mapaFinal[it->first] = unCuerpo;
-    }*/
+    }
     return mapaFinal;
 }
 
@@ -95,6 +97,7 @@ void entrenar() {
     map<string, cuerpoConNgramas> diccionario = crearDiccionariosDeReviewsPerceptron(tamanioNgramas);
     cout << "Diccionario creado con N gramas" << endl;
     map<string, cuerpoConHash> diccionarioHasheado = hashearNgramas(diccionario, tableSize);
+    cout << "Diccionario hasheado" << endl;
 }
 
 int main() {

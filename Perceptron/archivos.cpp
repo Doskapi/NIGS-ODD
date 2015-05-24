@@ -3,7 +3,7 @@
 #include "archivos.h"
 #include "funciones.h"
 
-#define FILTRO 50
+#define FILTRO 10
 
 list <string>  crearListaDeStopWords(){
 
@@ -204,10 +204,10 @@ map<string, cuerpoConNgramas> obtenerNgramas(map<string, cuerpoDelReview> &dicci
         unCuerpo.sentiment = it->second.sentiment;
         unCuerpo.listaReview = construirNgrama(it->second.review,tamanio);
         mapaFinal[it->first] = unCuerpo;
-        /*list<string> lista = mapaFinal[it->first].listaReview;
+        list<string> lista = mapaFinal[it->first].listaReview;
         for (list<string>::iterator iterador = lista.begin(); iterador != lista.end(); iterador++ ){
             cout << *iterador << endl;
-        }*/
+        }
     }
     return mapaFinal;
 }

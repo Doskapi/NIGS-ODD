@@ -101,9 +101,9 @@ bool buscarStopWord(string word, list<string> & listaStopWords )
     return false;
 }
 
-void incrementar(list<unsigned int> & hashTable,unsigned long int posicion ){
+void incrementar(list<unsigned short int> & hashTable,unsigned long int posicion ){
     unsigned long int k = 0;
-    list<unsigned int>::iterator iter;
+    list<unsigned short int>::iterator iter;
     for (iter = hashTable.begin();(k < posicion); iter++ ) k++;
     *iter = *iter + 1;
 }
