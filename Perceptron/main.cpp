@@ -91,11 +91,12 @@ map<string,cuerpoConHash> hashearNgramas(map<string,cuerpoConNgramas> diccionari
     return mapaFinal;
 }
 
-list<double> producto(list<int> review ,list<double> listaDePesos) {
-    prod = 0;
-    for(int i = 0; i < TAMANIO_DE_LA_TABLA; i++){
-        prod += listaDePesos(i) * review(i);
+double producto(list<unsigned short int> review ,list<double> listaDePesos) {
+    double prod = 0;
+    for(unsigned long int i = 0; i < TAMANIO_DE_LA_TABLA; i++){
+        prod += listaDePesos(i) * (double)review(i);
     }
+    return prod;
 }
 
 void entrenar() {
