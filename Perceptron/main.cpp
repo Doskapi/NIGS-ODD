@@ -87,8 +87,15 @@ map<string,cuerpoConHash> hashearNgramas(map<string,cuerpoConNgramas> diccionari
         }
         unCuerpo.hashTable = hashTable;
         mapaFinal[it->first] = unCuerpo;
-    }
+    }r=it
     return mapaFinal;
+}
+
+list<double> producto(list<int> review ,list<double> listaDePesos) {
+    prod = 0;
+    for(int i = 0; i < TAMANIO_DE_LA_TABLA; i++){
+        prod += listaDePesos(i) * review(i);
+    }
 }
 
 void entrenar() {
@@ -98,6 +105,10 @@ void entrenar() {
     cout << "Diccionario creado con N gramas" << endl;
     map<string, cuerpoConHash> diccionarioHasheado = hashearNgramas(diccionario, tableSize);
     cout << "Diccionario hasheado" << endl;
+
+    //list<double> listaDePesos(tableSize) = calcularPesos(diccionarioHasheado);
+    //cout << "Se crea la lista con los Pesos calculados" << endl;
+
 }
 
 int main() {

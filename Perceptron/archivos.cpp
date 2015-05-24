@@ -5,7 +5,7 @@
 
 #define FILTRO 10
 
-list <string>  crearListaDeStopWords(){
+list <string>  crearListaDeStopWords() {
 
     list <string> listaStopsWords;
     ifstream archivo;
@@ -24,8 +24,7 @@ list <string>  crearListaDeStopWords(){
 	return listaStopsWords;
 }
 
- bool esLetra (char c)
- {
+bool esLetra (char c) {
      if (c == 'a' || c == 'b' || c == 'c' || c == 'd' || c == 'e' || c == 'f' || c == 'g' || c == 'h' ||
          c == 'i' || c == 'j' || c == 'k' || c == 'l' || c == 'm' || c == 'n' || c == 'o' || c == 'p' ||
          c == 'q' || c == 'r' || c == 's' || c == 't' || c == 'u' || c == 'v' || c == 'w' || c == 'x' ||
@@ -39,8 +38,7 @@ list <string>  crearListaDeStopWords(){
     }
  }
 
-void crearDiccionariosDeReviews(map<string, float> &diccionarioT, map<string, float> &diccionarioP, map<string, float> &diccionarioN)
-{
+void crearDiccionariosDeReviews(map<string, float> &diccionarioT, map<string, float> &diccionarioP, map<string, float> &diccionarioN) {
     list<string> listaDeStopWords = crearListaDeStopWords();
     ifstream archivo;
     string word, id, clasificacionDelReview, review;
@@ -139,8 +137,7 @@ void crearDiccionariosDeReviews(map<string, float> &diccionarioT, map<string, fl
  }
 
 
-void crearDiccionarioInicial(map<string, cuerpoDelReview> &diccionario)
-{
+void crearDiccionarioInicial(map<string, cuerpoDelReview> &diccionario) {
     list<string> listaDeStopWords = crearListaDeStopWords();
     ifstream archivo;
     string word, id, clasificacionDelReview, review;
@@ -197,7 +194,7 @@ void crearDiccionarioInicial(map<string, cuerpoDelReview> &diccionario)
     archivo.close();
  }
 
-map<string, cuerpoConNgramas> obtenerNgramas(map<string, cuerpoDelReview> &diccionario, int tamanio){
+map<string, cuerpoConNgramas> obtenerNgramas(map<string, cuerpoDelReview> &diccionario, int tamanio) {
     map<string, cuerpoConNgramas> mapaFinal;
     cuerpoConNgramas unCuerpo;
     for (map<string,cuerpoDelReview>::iterator it=diccionario.begin(); it!=diccionario.end(); ++it){
