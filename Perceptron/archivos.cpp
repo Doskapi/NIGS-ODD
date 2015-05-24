@@ -202,9 +202,9 @@ map<string, cuerpoConNgramas> obtenerNgramas(map<string, cuerpoDelReview> &dicci
         unCuerpo.listaReview = construirNgrama(it->second.review,tamanio);
         mapaFinal[it->first] = unCuerpo;
         list<string> lista = mapaFinal[it->first].listaReview;
-        for (list<string>::iterator iterador = lista.begin(); iterador != lista.end(); iterador++ ){
+        /*for (list<string>::iterator iterador = lista.begin(); iterador != lista.end(); iterador++ ){
             cout << *iterador << endl;
-        }
+        }*/
     }
     return mapaFinal;
 }

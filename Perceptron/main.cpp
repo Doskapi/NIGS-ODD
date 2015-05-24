@@ -87,14 +87,18 @@ map<string,cuerpoConHash> hashearNgramas(map<string,cuerpoConNgramas> diccionari
         }
         unCuerpo.hashTable = hashTable;
         mapaFinal[it->first] = unCuerpo;
-    }r=it
+    }
     return mapaFinal;
 }
 
-double producto(list<unsigned short int> review ,list<double> listaDePesos) {
+double productoEscalar(list<unsigned short int> review ,list<double> listaDePesos) {
     double prod = 0;
+    list<unsigned short int>::iterator itReview = review.begin();
+    list<double>::iterator itPesos = listaDePesos.begin();
     for(unsigned long int i = 0; i < TAMANIO_DE_LA_TABLA; i++){
-        prod += listaDePesos(i) * (double)review(i);
+        prod += (*itPesos) * ((double) *itReview) ;
+        itPesos++;
+        itReview++;
     }
     return prod;
 }
@@ -103,9 +107,9 @@ void entrenar() {
     int tamanioNgramas = TAMANIO_DE_NGRAMAS;
     unsigned long int tableSize = TAMANIO_DE_LA_TABLA;
     map<string, cuerpoConNgramas> diccionario = crearDiccionariosDeReviewsPerceptron(tamanioNgramas);
-    cout << "Diccionario creado con N gramas" << endl;
+    cout << "Diccionario creado con N gramas" << endl << endl;
     map<string, cuerpoConHash> diccionarioHasheado = hashearNgramas(diccionario, tableSize);
-    cout << "Diccionario hasheado" << endl;
+    cout << "Diccionario hasheado" << endl << endl;
 
     //list<double> listaDePesos(tableSize) = calcularPesos(diccionarioHasheado);
     //cout << "Se crea la lista con los Pesos calculados" << endl;
