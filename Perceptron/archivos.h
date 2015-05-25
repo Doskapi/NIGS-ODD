@@ -11,6 +11,7 @@
 #include <string>
 #include <cmath>
 
+
 using namespace std;
 
 struct cuerpoDelReview {
@@ -21,6 +22,11 @@ struct cuerpoDelReview {
 struct cuerpoConNgramas {
     bool sentiment;
     list<string> listaReview;
+};
+
+struct cuerpoConHash {
+    bool sentiment;
+    list<unsigned short int> hashTable;
 };
 
 bool esLetra (char c);

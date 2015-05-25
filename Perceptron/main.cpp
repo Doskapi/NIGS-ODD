@@ -3,16 +3,18 @@
 #include <sstream>
 #include <iostream>
 #include <list>
+#include <time.h>
 #include "funciones.h"
-#include "archivos.h"
 
-#define TAMANIO_DE_LA_TABLA 50 //33554432
 #define TAMANIO_DE_NGRAMAS 2
 #define PASOS_MAXIMOS 40
+#define ARCH_DE_ENTRENAMIENTO "archivos/labeledTrainData.tsv"
+#define ARCH_A_CLASIFICAR "archivos/unlabeledTrainData.tsv"
+#define ARCH_RESULTADOS "archivos/resultados.csv"
 
 using namespace std;
 
-void pruebas(){
+/* void pruebas(){ // aca se hace las pruebas
     string frase = "una frase loca para mostrar que este n grama si funciona correctamente saludos";
     list<string> listaNgramas = construirNgrama(frase, 3);
     list<string>::iterator iterador; //Esta es la forma de recorrer esta lista
@@ -41,9 +43,7 @@ void pruebas(){
     //for (iter = hashTable.begin(); iter != hashTable.end(); iter++ ){
     //    *iter = 0;
     //}
-
-    for (int i = 0; i < 3; ++i)
-    {
+    for (int i = 0; i < 3; ++i){
         cout << endl;
         cout << "Prueba de Hash" << endl;
         cout << "=============================================" << endl;
@@ -55,58 +55,82 @@ void pruebas(){
         cout << "Hash32: " << returnValue32 << endl;
         incrementar(hashTable, returnValue32);
     }
-
     cout << "[pos]:hashvalue" << endl;
     int j = 0;
-    for (iter = hashTable.begin(); iter != hashTable.end(); iter++ )
-    {
+    for (iter = hashTable.begin(); iter != hashTable.end(); iter++ ){
         cout << "["<< j << "]:" << *iter << "  " << endl;
-        if ((j%9 == 0) && (j>1))
-        {
+        if ((j%9 == 0) && (j>1)){
             cout << endl;
         }
     }
     cout << endl;
 }
+*/
 
-map<string,cuerpoConHash> hashearNgramas(map<string,cuerpoConNgramas> diccionario,unsigned long int tableSize) {
 
-    map<string, cuerpoConHash> mapaFinal;
-    cuerpoConHash unCuerpo;
-    unsigned long int returnValue;
-    for (map<string,cuerpoConNgramas>::iterator it=diccionario.begin(); it!=diccionario.end(); ++it){
-        list <unsigned short int> hashTable(tableSize);
-        unCuerpo.sentiment = it->second.sentiment;
-        for (list<string>::iterator iterador=it->second.listaReview.begin(); iterador!=it->second.listaReview.end(); ++iterador){
-            returnValue = hash32(*iterador, tableSize);
-            incrementar(hashTable, returnValue);
-        }
-        unCuerpo.hashTable = hashTable;
-        mapaFinal[it->first] = unCuerpo;
-    }
-    return mapaFinal;
-}
-
-void entrenar() {
+list<double> entrenar() {
     int tamanioNgramas = TAMANIO_DE_NGRAMAS;
-    int pasosMaximos = PASOS_MAXIMOS;
-    unsigned long int tableSize = TAMANIO_DE_LA_TABLA;
     map<string, cuerpoConNgramas> diccionario = crearDiccionariosDeReviewsPerceptron(tamanioNgramas);
     cout << "Diccionario creado con N gramas" << endl << endl;
-    map<string, cuerpoConHash> diccionarioHasheado = hashearNgramas(diccionario, tableSize);
+    map<string, cuerpoConHash> diccionarioHasheado = hashearNgramas(diccionario);
     cout << "Diccionario hasheado" << endl << endl;
-    list<double> listaDePesos = calcularPesos(diccionarioHasheado,tableSize,pasosMaximos);
-    cout << "Se crea la lista con los Pesos calculados" << endl;
-    int i = 0;
-    for (list<double>::iterator iterador = listaDePesos.begin(); iterador != listaDePesos.end(); iterador++ ){
-        cout << i << ") " ;
-        cout << *iterador << endl;
-        i++;
+    int pasosMaximos = PASOS_MAXIMOS;
+    list<double> listaDePesos = calcularPesos(diccionarioHasheado,pasosMaximos);
+    cout << "Se crea la lista con los Pesos calculados" << endl << endl;
+
+//    int i = 0;
+//    for (list<double>::iterator iterador = listaDePesos.begin(); iterador != listaDePesos.end(); iterador++ ){
+//        cout << i << ") " ;
+//        cout << *iterador << endl;
+//        i++;
+//    }
+
+    return listaDePesos;
+}
+
+void clasificar(list<double> listaDePesos) {
+
+    //primero tengo q limpiar el review --> listo
+    int tamanioNgramas = TAMANIO_DE_NGRAMAS;
+    map<string, list<string> > diccionario = crearDiccionariosDeReviewsDelArchAClasificar(tamanioNgramas);
+    cout << "Diccionario creado con N gramas del archivo de reviews a clasificar" << endl << endl;
+
+    //segundo generar los ngramas --> listo
+    map<string, list<unsigned short int> > diccionarioHasheado = hashearNgramasDelArchAClasificar(diccionario);
+    cout << "Diccionario hasheado del archivo de reviews a clasificar" << endl << endl;
+
+    //abro el archivo de resultados
+    fstream archivo;
+    archivo.open("archivos/resultados.csv");
+    archivo << "\"id\",\"sentiment\"\n";
+
+    // por cada review
+    for (map<string, list<unsigned short int> >::iterator it=diccionarioHasheado.begin(); it!=diccionarioHasheado.end(); ++it){
+        double rta = productoEscalar((it->second),listaDePesos);
+        if(rta > 0.5){
+            archivo << (string)it->first << ",1\n";
+        }else{
+            archivo << (string)it->first << ",0\n";
+        }
     }
+    archivo.close();
 }
 
 int main() {
     //pruebas();
-    entrenar();
+    clock_t begin_time = clock();
+    cout << "+++++++++++++++++++++++++++++++++++++++++++" << endl;
+    cout << "Proceso de entrenamiento..." << endl;
+    cout << "+++++++++++++++++++++++++++++++++++++++++++" << endl << endl;
+    list<double> listaDePesos = entrenar();
+    cout << "El entrenamiento tardo: " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << " s" << endl << endl;
+
+    begin_time = clock();
+    cout << "+++++++++++++++++++++++++++++++++++++++++++" << endl;
+    cout << "Clasificacion de reviews..." << endl;
+    cout << "+++++++++++++++++++++++++++++++++++++++++++" << endl << endl;
+    clasificar(listaDePesos);
+    cout << "La clasificacion tardo: " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << " s" << endl << endl;
+
     return 0;
 }

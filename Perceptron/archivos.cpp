@@ -136,7 +136,6 @@ void crearDiccionariosDeReviews(map<string, float> &diccionarioT, map<string, fl
     archivo.close();
  }
 
-
 void crearDiccionarioInicial(map<string, cuerpoDelReview> &diccionario) {
     list<string> listaDeStopWords = crearListaDeStopWords();
     ifstream archivo;
@@ -214,3 +213,44 @@ map<string, cuerpoConNgramas> crearDiccionariosDeReviewsPerceptron(int tamanio) 
     crearDiccionarioInicial(diccionario);
     return obtenerNgramas(diccionario,tamanio);
 }
+
+string leerLineaDelArchivo(float &reviewsTotales, float &reviewsPositivos, float &reviewsNegativos)
+{
+    ifstream archivo;
+    string clasificacionDelReview, id;
+    archivo.open("labeledTrainData.tsv");
+
+    if(archivo.fail())
+    {
+        cout << "Error al abrir el archivo labeledTrainData.tsv" << endl;
+    }
+
+    reviewsTotales = 0;
+    reviewsNegativos = 0;
+    reviewsPositivos = 0;
+
+    while(!archivo.eof())
+    {
+        getline(archivo, id,'\t' );  // Lee el ID hasta el TAB
+        getline(archivo, clasificacionDelReview, '\t' );
+        if(clasificacionDelReview == "1")
+        {
+            reviewsPositivos ++;
+        }
+        if(clasificacionDelReview == "0")
+        {
+            reviewsNegativos ++;
+        }
+    }
+
+    archivo.close();
+
+    reviewsTotales = reviewsPositivos + reviewsNegativos;
+
+    cout << "En total hay  " << reviewsTotales << " reviews totales" << endl;
+    cout << "En total hay  " << reviewsPositivos << " reviews positivos" << endl;
+    cout << "En total hay  " << reviewsNegativos << " reviews negativos" << endl;
+}
+
+
+
