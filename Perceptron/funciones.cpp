@@ -8,6 +8,11 @@
 #define FNV_PRIME_64 1099511628211
 #define FNV_OFFSET_64 14695981039346656037U
 
+#define DELTA_DE_APRENDIZAJE 0.1
+
+using namespace std;
+
+
 //utiliza FNV32 para hashear un string y normaliza a la tabla de hash
 int hash32(string key, unsigned long int tableSize) {
     int index;
@@ -45,6 +50,18 @@ uint64_t FNV64(string s) {
         hash = hash * FNV_PRIME_64;
     }
     return hash;
+}
+
+double productoEscalar(list<unsigned short int> review ,list<double> listaDePesos) {
+    double prod = 0;
+    list<unsigned short int>::iterator itReview = review.begin();
+    list<double>::iterator itPesos = listaDePesos.begin();
+    for(unsigned long int i = 0; i < TAMANIO_DE_LA_TABLA; i++){
+        prod += (*itPesos) * ((double) *itReview) ;
+        itPesos++;
+        itReview++;
+    }
+    return prod;
 }
 
 int contarPalabras(string frase) {
@@ -100,5 +117,40 @@ void incrementar(list<unsigned short int> & hashTable,unsigned long int posicion
     list<unsigned short int>::iterator iter;
     for (iter = hashTable.begin();(k < posicion); iter++ ) k++;
     *iter = *iter + 1;
+}
+
+list<double> calcularPesos(map<string, cuerpoConHash> & diccionario, unsigned long int tableSize, int pasosMaximos){
+    list<double> listaDePesos (tableSize);
+    list<double>::iterator itPesos;
+    list<unsigned short int>::iterator itReviews;
+    int errores = 0, error, positivo;
+    unsigned long int i;
+    double producto;
+    for(int pasos=0; pasos < pasosMaximos; pasos ++){
+        for (map<string,cuerpoConHash>::iterator it=diccionario.begin(); it!=diccionario.end(); ++it){
+            list<unsigned short int> reviews = it->second.hashTable;
+            positivo = 0;
+			producto = productoEscalar(reviews, listaDePesos);
+            if (producto > 0.5) positivo = 1;
+			error = (int)(it->second.sentiment) - positivo;
+			if (error != 0){                //Actualizo los pesos
+				errores += 1;
+				itPesos = listaDePesos.begin();
+				itReviews = reviews.begin();
+				for(i= 0; i< tableSize; i++ ){
+					*itPesos += DELTA_DE_APRENDIZAJE * error * log(1.+ *itReviews);
+					itPesos++;
+					itReviews++;
+				}
+			}
+        }
+        if (errores == 0){
+			cout << "Cantidad de errores encontrados " << errores << endl;
+            return listaDePesos;
+        }
+        errores=0;
+        pasos++;
+    }
+    return listaDePesos;
 }
 

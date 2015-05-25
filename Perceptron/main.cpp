@@ -8,13 +8,9 @@
 
 #define TAMANIO_DE_LA_TABLA 50 //33554432
 #define TAMANIO_DE_NGRAMAS 2
+#define PASOS_MAXIMOS 40
 
 using namespace std;
-
-struct cuerpoConHash {
-    bool sentiment;
-    list<unsigned short int> hashTable;
-};
 
 void pruebas(){
     string frase = "una frase loca para mostrar que este n grama si funciona correctamente saludos";
@@ -91,29 +87,22 @@ map<string,cuerpoConHash> hashearNgramas(map<string,cuerpoConNgramas> diccionari
     return mapaFinal;
 }
 
-double productoEscalar(list<unsigned short int> review ,list<double> listaDePesos) {
-    double prod = 0;
-    list<unsigned short int>::iterator itReview = review.begin();
-    list<double>::iterator itPesos = listaDePesos.begin();
-    for(unsigned long int i = 0; i < TAMANIO_DE_LA_TABLA; i++){
-        prod += (*itPesos) * ((double) *itReview) ;
-        itPesos++;
-        itReview++;
-    }
-    return prod;
-}
-
 void entrenar() {
     int tamanioNgramas = TAMANIO_DE_NGRAMAS;
+    int pasosMaximos = PASOS_MAXIMOS;
     unsigned long int tableSize = TAMANIO_DE_LA_TABLA;
     map<string, cuerpoConNgramas> diccionario = crearDiccionariosDeReviewsPerceptron(tamanioNgramas);
     cout << "Diccionario creado con N gramas" << endl << endl;
     map<string, cuerpoConHash> diccionarioHasheado = hashearNgramas(diccionario, tableSize);
     cout << "Diccionario hasheado" << endl << endl;
-
-    //list<double> listaDePesos(tableSize) = calcularPesos(diccionarioHasheado);
-    //cout << "Se crea la lista con los Pesos calculados" << endl;
-
+    list<double> listaDePesos = calcularPesos(diccionarioHasheado,tableSize,pasosMaximos);
+    cout << "Se crea la lista con los Pesos calculados" << endl;
+    int i = 0;
+    for (list<double>::iterator iterador = listaDePesos.begin(); iterador != listaDePesos.end(); iterador++ ){
+        cout << i << ") " ;
+        cout << *iterador << endl;
+        i++;
+    }
 }
 
 int main() {
