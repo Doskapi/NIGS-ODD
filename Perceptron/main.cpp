@@ -73,6 +73,7 @@ list<double> entrenar() {
     map<string, cuerpoConNgramas> diccionario = crearDiccionariosDeReviewsPerceptron(tamanioNgramas);
     cout << "Diccionario creado con N gramas" << endl << endl;
     map<string, cuerpoConHash> diccionarioHasheado = hashearNgramas(diccionario);
+    diccionario.clear();
     cout << "Diccionario hasheado" << endl << endl;
     int pasosMaximos = PASOS_MAXIMOS;
     list<double> listaDePesos = calcularPesos(diccionarioHasheado,pasosMaximos);
