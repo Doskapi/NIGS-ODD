@@ -78,7 +78,6 @@ list<double> entrenar() {
     int pasosMaximos = PASOS_MAXIMOS;
     list<double> listaDePesos = calcularPesos(diccionarioHasheado,pasosMaximos);
     cout << "Se crea la lista con los Pesos calculados" << endl << endl;
-
 //    int i = 0;
 //    for (list<double>::iterator iterador = listaDePesos.begin(); iterador != listaDePesos.end(); iterador++ ){
 //        cout << i << ") " ;
