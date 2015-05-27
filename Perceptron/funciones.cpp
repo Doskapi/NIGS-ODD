@@ -9,8 +9,8 @@
 #define FNV_OFFSET_64 14695981039346656037U
 
 #define DELTA_DE_APRENDIZAJE 0.1
-#define TAMANIO_DE_LA_TABLA 1000 //33554432
-#define FILTRO 50000
+#define TAMANIO_DE_LA_TABLA 100000 //33554432
+#define FILTRO 50005
 
 using namespace std;
 
@@ -299,7 +299,7 @@ void crearDiccionarioInicialDelArchAClasificar(map<string, string> &diccionario)
     string word, id, review;
     bool esStopWord;
     char c;
-    archivo.open("archivos/unlabeledTrainData.tsv");
+    archivo.open("archivos/testData.tsv");
 
     if(archivo.fail())
     {

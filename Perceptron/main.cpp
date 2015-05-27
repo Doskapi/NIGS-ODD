@@ -7,7 +7,7 @@
 #include "funciones.h"
 
 #define TAMANIO_DE_NGRAMAS 2
-#define PASOS_MAXIMOS 40
+#define PASOS_MAXIMOS 100
 #define ARCH_DE_ENTRENAMIENTO "archivos/labeledTrainData.tsv"
 #define ARCH_A_CLASIFICAR "archivos/unlabeledTrainData.tsv"
 #define ARCH_RESULTADOS "archivos/resultados.csv"
@@ -78,12 +78,13 @@ list<double> entrenar() {
     int pasosMaximos = PASOS_MAXIMOS;
     list<double> listaDePesos = calcularPesos(diccionarioHasheado,pasosMaximos);
     cout << "Se crea la lista con los Pesos calculados" << endl << endl;
-//    int i = 0;
-//    for (list<double>::iterator iterador = listaDePesos.begin(); iterador != listaDePesos.end(); iterador++ ){
-//        cout << i << ") " ;
-//        cout << *iterador << endl;
-//        i++;
-//    }
+
+    ofstream archListaDePesos;
+    archListaDePesos.open("archivos/listaDePesos.csv");
+    for (list<double>::iterator iterador = listaDePesos.begin(); iterador != listaDePesos.end(); iterador++ ){
+        archListaDePesos << *iterador << "\n";
+    }
+    archListaDePesos.close();
 
     return listaDePesos;
 }
@@ -118,14 +119,44 @@ void clasificar(list<double> listaDePesos) {
 
 int main() {
     //pruebas();
-    clock_t begin_time = clock();
-    cout << "+++++++++++++++++++++++++++++++++++++++++++" << endl;
-    cout << "Proceso de entrenamiento..." << endl;
-    cout << "+++++++++++++++++++++++++++++++++++++++++++" << endl << endl;
-    list<double> listaDePesos = entrenar();
-    cout << "El entrenamiento tardo: " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << " s" << endl << endl;
+    list<double> listaDePesos;
+    char calcONoCalc;
+    cout << "Que quiere hacer?" << endl << "a. Usar vector calculado en archivos/listaDePesos.txt " << endl << "b. Calcular el vector otra vez " << endl << "Rta: ";
+    cin >> calcONoCalc;
+    cout << endl;
 
-    begin_time = clock();
+    if (calcONoCalc == 'a'){
+
+            ifstream archListaDePesos;
+            list<double>::iterator it = listaDePesos.begin();
+            double dato;
+            string datoString;
+            while(!archListaDePesos.eof()){
+                //getline(archListaDePesos, datoString,'\n');
+                archListaDePesos >> dato;
+                it = listaDePesos.end();
+                listaDePesos.insert(it,dato);
+            }
+            archListaDePesos.open("archivos/listaDePesos.csv");
+            int i = 0;
+            for (list<double>::iterator iterador = listaDePesos.begin(); iterador != listaDePesos.end(); iterador++ ){
+                cout << i << ") " ;
+                cout << *iterador << endl;
+                i++;
+            }
+            archListaDePesos.close();
+
+    }else{
+            clock_t begin_time = clock();
+            cout << "+++++++++++++++++++++++++++++++++++++++++++" << endl;
+            cout << "Proceso de entrenamiento..." << endl;
+            cout << "+++++++++++++++++++++++++++++++++++++++++++" << endl << endl;
+            listaDePesos = entrenar();
+            cout << "El entrenamiento tardo: " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << " s" << endl << endl;
+    }
+
+
+    clock_t begin_time = clock();
     cout << "+++++++++++++++++++++++++++++++++++++++++++" << endl;
     cout << "Clasificacion de reviews..." << endl;
     cout << "+++++++++++++++++++++++++++++++++++++++++++" << endl << endl;
