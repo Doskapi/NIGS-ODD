@@ -27,7 +27,7 @@ struct cuerpoConNgramas {
 
 struct cuerpoConHash {
     bool sentiment;
-    list<unsigned short int> hashTable;
+    list<char> hashTable;
 };
 
 uint32_t FNV32(string & s);
@@ -38,7 +38,7 @@ uint64_t FNV64(string & s);
 
 int hash64(string & key, unsigned long int & tableSize);
 
-double productoEscalar(list<unsigned short int> & review ,list<double> & listaDePesos);
+double productoEscalar(list<char> & review ,list<double> & listaDePesos);
 
 int contarPalabras(string & frase);
 
@@ -48,7 +48,7 @@ list <string>  construirNgrama(string &, int&);
 bool buscarStopWord(string &word,list<string> & listaStopWords);
 
 //Incrementa en uno en la posicion indicada;
-void incrementar(list<unsigned short int> & hashTable,unsigned long int & posicion );
+void incrementar(list<char> & hashTable,unsigned long int & posicion );
 
 list<double> calcularPesos(map<string, cuerpoConHash> & diccionario, int & pasosMaximos);
 
@@ -70,4 +70,6 @@ void crearDiccionarioInicialDelArchAClasificar(map<string, string> &diccionario)
 
 map<string, list<string> > obtenerNgramasDelArchAClasificar(map<string, string> &diccionario, int &tamanio);
 
-map<string, list<unsigned short int> > hashearNgramasDelArchAClasificar(map<string, list<string> > & diccionario);
+map<string, list<char> > hashearNgramasDelArchAClasificar(map<string, list<string> > & diccionario);
+
+map<string, cuerpoConHash> crearDiccionariosDeReviewsChar(int &tamanio);

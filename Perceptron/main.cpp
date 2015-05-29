@@ -70,13 +70,13 @@ using namespace std;
 
 list<double> entrenar() {
     int tamanioNgramas = TAMANIO_DE_NGRAMAS;
-    map<string, cuerpoConNgramas> diccionario = crearDiccionariosDeReviewsPerceptron(tamanioNgramas);
+    map<string, cuerpoConHash> diccionario = crearDiccionariosDeReviewsChar(tamanioNgramas);
     cout << "Diccionario creado con N gramas" << endl << endl;
-    map<string, cuerpoConHash> diccionarioHasheado = hashearNgramas(diccionario);
-    diccionario.clear();
+    //map<string, cuerpoConHash> diccionarioHasheado = hashearNgramas(diccionario);
+    //diccionario.clear();
     cout << "Diccionario hasheado" << endl << endl;
     int pasosMaximos = PASOS_MAXIMOS;
-    list<double> listaDePesos = calcularPesos(diccionarioHasheado,pasosMaximos);
+    list<double> listaDePesos = calcularPesos(diccionario,pasosMaximos);
     cout << "Se crea la lista con los Pesos calculados" << endl << endl;
 
 //    int i = 0;
@@ -97,7 +97,7 @@ void clasificar(list<double> listaDePesos) {
     cout << "Diccionario creado con N gramas del archivo de reviews a clasificar" << endl << endl;
 
     //segundo generar los ngramas --> listo
-    map<string, list<unsigned short int> > diccionarioHasheado = hashearNgramasDelArchAClasificar(diccionario);
+    map<string, list<char> > diccionarioHasheado = hashearNgramasDelArchAClasificar(diccionario);
     cout << "Diccionario hasheado del archivo de reviews a clasificar" << endl << endl;
 
     //abro el archivo de resultados
@@ -106,7 +106,7 @@ void clasificar(list<double> listaDePesos) {
     archivo << "\"id\",\"sentiment\"\n";
 
     // por cada review
-    for (map<string, list<unsigned short int> >::iterator it=diccionarioHasheado.begin(); it!=diccionarioHasheado.end(); ++it){
+    for (map<string, list<char> >::iterator it=diccionarioHasheado.begin(); it!=diccionarioHasheado.end(); ++it){
         double rta = productoEscalar((it->second),listaDePesos);
         if(rta > 0.5){
             archivo << (string)it->first << ",1\n";
