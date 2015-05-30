@@ -9,8 +9,8 @@
 #define FNV_OFFSET_64 14695981039346656037U
 
 #define DELTA_DE_APRENDIZAJE 0.1
-#define TAMANIO_DE_LA_TABLA 1000 //33554432
-#define FILTRO 50000
+#define TAMANIO_DE_LA_TABLA 32768 //32768 //33554432
+#define FILTRO 50005
 
 using namespace std;
 
@@ -94,10 +94,10 @@ list <string>  construirNgrama(string &frase, int &tamanioNgrama) {
 
 //Retorna true si la palabra es un stopWord, caso contrario retorna false
 bool buscarStopWord(string &word, list<string> & listaStopWords ) {
-    list<string>::iterator iterador;
+    /*list<string>::iterator iterador;
     for (iterador = listaStopWords.begin(); iterador != listaStopWords.end(); iterador++ ){
         if (*iterador == word) return true;
-    }
+    }*/
     return false;
 }
 
@@ -109,28 +109,29 @@ void incrementar(list<char> & hashTable,unsigned long int &posicion ) {
 }
 
 list<double> calcularPesos(map<string, cuerpoConHash> & diccionario, int &pasosMaximos){
-    unsigned long int tableSize = TAMANIO_DE_LA_TABLA;
+    unsigned long int tableSize = TAMANIO_DE_LA_TABLA, posAnterior;
+    map<unsigned long int,char> reviews;
     list<double> listaDePesos (tableSize);
     list<double>::iterator itPesos;
-    list<char>::iterator itReviews;
+    map<unsigned long int,char>::iterator itReviews;
     int errores = 0, error, positivo;
-    unsigned long int i;
     double producto;
     for(int pasos=0; pasos < pasosMaximos; pasos ++){
+        //cout << "paso" << endl;
         for (map<string,cuerpoConHash>::iterator it=diccionario.begin(); it!=diccionario.end(); ++it){
-            list<char> reviews = it->second.hashTable;
+            reviews = it->second.hashTable;
             positivo = 0;
 			producto = productoEscalar(reviews, listaDePesos);
-            if (producto > 0.5) positivo = 1;
+            if (producto >= 0.5) positivo = 1;
 			error = (int)(it->second.sentiment) - positivo;
 			if (error != 0){                //Actualizo los pesos
 				errores += 1;
 				itPesos = listaDePesos.begin();
-				itReviews = reviews.begin();
-				for(i= 0; i< tableSize; i++ ){
-					*itPesos += DELTA_DE_APRENDIZAJE * error * log(1.+ *itReviews);
-					itPesos++;
-					itReviews++;
+				posAnterior = 0;
+				for(itReviews = reviews.begin(); itReviews!=reviews.end() ; ++itReviews){
+                    for(unsigned long int i = 0; i< (itReviews->first - posAnterior); i++) itPesos++;
+					*itPesos += DELTA_DE_APRENDIZAJE * error * log(1.+ (double)itReviews->second);
+                    posAnterior = (unsigned long int)itReviews->first;
 				}
 			}
         }
@@ -141,14 +142,15 @@ list<double> calcularPesos(map<string, cuerpoConHash> & diccionario, int &pasosM
         errores=0;
         pasos++;
     }
+    cout << "Cantidad de errores encontrados " << errores << endl;
     return listaDePesos;
 }
 
 map<string,cuerpoConHash> hashearNgramas(map<string,cuerpoConNgramas> &diccionario) {
-    unsigned long int tableSize = TAMANIO_DE_LA_TABLA;
+    //unsigned long int tableSize = TAMANIO_DE_LA_TABLA;
     //string idAnterior = "";
     map<string, cuerpoConHash> mapaFinal;
-    cuerpoConHash unCuerpo;
+    /*cuerpoConHash unCuerpo;
     unsigned long int returnValue;
     for (map<string,cuerpoConNgramas>::iterator it=diccionario.begin(); it!=diccionario.end(); ++it){
         //diccionario.erase(idAnterior);
@@ -161,7 +163,7 @@ map<string,cuerpoConHash> hashearNgramas(map<string,cuerpoConNgramas> &diccionar
         //idAnterior = it ->first;
         unCuerpo.hashTable = hashTable;
         mapaFinal[it->first] = unCuerpo;
-    }
+    }*/
     return mapaFinal;
 }
 
@@ -173,6 +175,19 @@ double productoEscalar(list<char> &review ,list<double> &listaDePesos) {
         prod += (*itPesos) * ((double) *itReview) ;
         itPesos++;
         itReview++;
+    }
+    return prod;
+}
+
+double productoEscalar(map<unsigned long int,char> &review ,list<double> &listaDePesos) {
+    double prod = 0;
+    map<unsigned long int,char>::iterator itReview;
+    list<double>::iterator itPesos = listaDePesos.begin();
+    unsigned long int posAnterior = 0;
+    for(itReview = review.begin();itReview!=review.end(); ++itReview){
+        for(unsigned long int i = 0; i < (itReview->first - posAnterior); i++) itPesos++;
+        prod += (double)(itReview->second) * (*itPesos) ;
+        posAnterior = (unsigned long int)itReview->first;
     }
     return prod;
 }
@@ -293,13 +308,71 @@ map<string, list<string> > crearDiccionariosDeReviewsDelArchAClasificar(int &tam
     return obtenerNgramasDelArchAClasificar(diccionario,tamanio);
 }
 
+map<string, map<unsigned long int,char>  > crearDiccionariosDeReviewsDelArchivoAClasificar(int &tamanio) {
+    unsigned long int tableSize = TAMANIO_DE_LA_TABLA;
+    unsigned long int returnValue;
+    list<string> listaDeStopWords = crearListaDeStopWords();
+    map<string, map<unsigned long int,char> > diccionario;
+    ifstream archivo;
+    string word, id, review;
+    bool esStopWord;
+    char c;
+    archivo.open("archivos/testData.tsv");
+
+    if(archivo.fail())
+    {
+        cout << "Error, no se pudo encontrar el archivo en: archivos/unlabeledTrainData.tsv" << endl;
+    }
+    getline(archivo, id,'\t' );  // Lee el ID hasta el TAB
+    getline(archivo, review, '\n' );
+    int contador = 0;
+    while(!archivo.eof() & (contador < FILTRO))
+    {
+        getline(archivo, id,'\t' );  // Lee el ID hasta el TAB
+        getline(archivo, review, '\n' ); // lee hasta el proximo tab
+        string reviewFiltrado = "";
+        for (unsigned int i = 0; i < review.size(); i++)
+        {
+            c = review[i];
+            c = tolower(c);
+            if(!esLetra(c))
+            {
+                if(word != "")
+                {
+                    esStopWord = buscarStopWord(word, listaDeStopWords);
+                    if(!esStopWord)
+                    {
+                        reviewFiltrado += word + " ";
+                    }
+                }
+                word = "";
+            }
+            else
+            {
+                word += c;
+            }
+        }
+        list<string> listaReview = construirNgrama(reviewFiltrado,tamanio);
+        map<unsigned long int,char> hashTable;
+        for (list<string>::iterator iterador=listaReview.begin(); iterador!=listaReview.end(); ++iterador){
+            returnValue = hash32(*iterador, tableSize);
+            hashTable[returnValue] += 1;
+        }
+        diccionario[id] = hashTable;
+        contador++;
+    }
+    archivo.close();
+    return diccionario;
+
+}
+
 void crearDiccionarioInicialDelArchAClasificar(map<string, string> &diccionario) {
     list<string> listaDeStopWords = crearListaDeStopWords();
     ifstream archivo;
     string word, id, review;
     bool esStopWord;
     char c;
-    archivo.open("archivos/unlabeledTrainData.tsv");
+    archivo.open("archivos/testData.tsv");
 
     if(archivo.fail())
     {
@@ -422,15 +495,15 @@ map<string, cuerpoConHash> crearDiccionariosDeReviewsChar(int &tamanio) {
         cuerpoConHash unCuerpo;
         unCuerpo.sentiment = esPositivo;
         list<string> listaReview = construirNgrama(reviewFiltrado,tamanio);
-        list <char> hashTable(tableSize);
+        map<unsigned long int,char> hashTable;
         for (list<string>::iterator iterador=listaReview.begin(); iterador!=listaReview.end(); ++iterador){
             returnValue = hash32(*iterador, tableSize);
-            incrementar(hashTable, returnValue);
+            unCuerpo.hashTable[returnValue] += 1;
         }
-        unCuerpo.hashTable = hashTable;
         diccionario[id] = unCuerpo;
         contador++;
     }
     archivo.close();
     return diccionario;
 }
+

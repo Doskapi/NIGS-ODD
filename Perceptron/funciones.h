@@ -27,7 +27,7 @@ struct cuerpoConNgramas {
 
 struct cuerpoConHash {
     bool sentiment;
-    list<char> hashTable;
+    map<unsigned long int,char> hashTable;
 };
 
 uint32_t FNV32(string & s);
@@ -39,6 +39,8 @@ uint64_t FNV64(string & s);
 int hash64(string & key, unsigned long int & tableSize);
 
 double productoEscalar(list<char> & review ,list<double> & listaDePesos);
+
+double productoEscalar(map<unsigned long int,char> &review ,list<double> &listaDePesos);
 
 int contarPalabras(string & frase);
 
@@ -65,6 +67,10 @@ map<string, cuerpoConNgramas> crearDiccionariosDeReviewsPerceptron(int &tamanio)
 void crearDiccionarioInicial(map<string, cuerpoDelReview> &diccionario);
 
 map<string, list<string> > crearDiccionariosDeReviewsDelArchAClasificar(int &tamanio);
+
+map<string, map<unsigned long int,char>  > crearDiccionariosDeReviewsDelArchivoAClasificar(int &tamanio);
+
+map<string, cuerpoConHash > crearDiccionariosDeReviewsAClasificar(int &tamanio);
 
 void crearDiccionarioInicialDelArchAClasificar(map<string, string> &diccionario);
 
