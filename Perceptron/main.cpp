@@ -9,7 +9,7 @@
 #define TAMANIO_DE_NGRAMAS 2
 #define PASOS_MAXIMOS 50
 #define ARCH_DE_ENTRENAMIENTO "archivos/labeledTrainData.tsv"
-#define ARCH_A_CLASIFICAR "archivos/unlabeledTrainData.tsv"
+#define ARCH_A_CLASIFICAR "archivos/testData.tsv"
 #define ARCH_RESULTADOS "archivos/resultados.csv"
 
 using namespace std;

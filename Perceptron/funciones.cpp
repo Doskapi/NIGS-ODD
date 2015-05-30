@@ -8,9 +8,9 @@
 #define FNV_PRIME_64 1099511628211
 #define FNV_OFFSET_64 14695981039346656037U
 
-#define DELTA_DE_APRENDIZAJE 0.1
+#define DELTA_DE_APRENDIZAJE 0.1 
 #define TAMANIO_DE_LA_TABLA 32768 //32768 //33554432
-#define FILTRO 50005
+#define FILTRO 50005 // para ver menos cosas 
 
 using namespace std;
 
