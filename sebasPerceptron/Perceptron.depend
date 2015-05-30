@@ -1,0 +1,51 @@
+# depslib dependency file v1.0
+1432688465 source:/home/sebas/NIGS-ODD/Perceptron/funciones.cpp
+	"funciones.h"
+
+1432667263 /home/sebas/NIGS-ODD/Perceptron/funciones.h
+	<fstream>
+	<sstream>
+	<iostream>
+	<list>
+	<map>
+	<stdio.h>
+	<string>
+	<cstdlib>
+	<stdint.h>
+	<map>
+	<string>
+	<cmath>
+
+1432688466 source:/home/sebas/NIGS-ODD/Perceptron/main.cpp
+	<fstream>
+	<sstream>
+	<iostream>
+	<list>
+	<time.h>
+	"funciones.h"
+
+1432947103 source:/home/sebas/2kpi/Perceptron/funciones.cpp
+	"funciones.h"
+
+1432947103 /home/sebas/2kpi/Perceptron/funciones.h
+	<fstream>
+	<sstream>
+	<iostream>
+	<list>
+	<map>
+	<stdio.h>
+	<string>
+	<cstdlib>
+	<stdint.h>
+	<map>
+	<string>
+	<cmath>
+
+1432952335 source:/home/sebas/2kpi/Perceptron/main.cpp
+	<fstream>
+	<sstream>
+	<iostream>
+	<list>
+	<time.h>
+	"funciones.h"
+
