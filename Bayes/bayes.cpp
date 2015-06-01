@@ -17,7 +17,7 @@ void filtrarDiccionariosDeReviews(map<string, float> &diccionarioT, map<string, 
 void filtrarDiccionario(map<string, float> &diccionario);
 void mostrarDiccionariosDeReviews(map<string, float> &diccionarioT, map<string, float> &diccionarioP, map<string, float> &diccionarioN);
 void calcularProbabilidadesDePalabras(map<string, float> &diccionarioT, map<string, float> &diccionario, map<string, float> &probabilidades);
-void clasificarReview(map<string, float> &probabilidadesP, map<string, float> &probabilidadesN, float reviewsTotales, float reviewsPositivos, float reviewsNegativos);
+void clasificarReviewBayes(map<string, float> &probabilidadesP, map<string, float> &probabilidadesN, float reviewsTotales, float reviewsPositivos, float reviewsNegativos);
 
 int main()
 {
@@ -28,17 +28,17 @@ int main()
     contarReviews(reviewsTotales, reviewsPositivos, reviewsNegativos);
     cout << "Inicializando diccionarios de palabras de los reviews..." << endl;
     crearDiccionariosDeReviews(diccionarioT, diccionarioP, diccionarioN);
-    cout << "Filtrando los diccionarios de palabras de los reviews..." << endl;
-    filtrarDiccionariosDeReviews(diccionarioT, diccionarioP, diccionarioN);
-    mostrarDiccionariosDeReviews(diccionarioT, diccionarioP, diccionarioN);
+    //cout << "Filtrando los diccionarios de palabras de los reviews..." << endl;
+    //filtrarDiccionariosDeReviews(diccionarioT, diccionarioP, diccionarioN)
+    //mostrarDiccionariosDeReviews(diccionarioT, diccionarioP, diccionarioN);
     cout << "Calculando Probabilidades Positivas" << endl;
     calcularProbabilidadesDePalabras(diccionarioT, diccionarioP, probabilidadesP);
     cout << "Calculando Probabilidades Negativas" << endl;
     calcularProbabilidadesDePalabras(diccionarioT, diccionarioN, probabilidadesN);
     cout << "En probabilidadesP hay  " << probabilidadesP.size() << endl;
     cout << "En probabilidadesN hay  " << probabilidadesN.size() << endl;
-    cout << " Clasificando reviews..." << endl;
-    clasificarReview(probabilidadesP, probabilidadesN, reviewsTotales, reviewsPositivos, reviewsNegativos);
+    cout << "Clasificando reviews..." << endl;
+    clasificarReviewBayes(probabilidadesP, probabilidadesN, reviewsTotales, reviewsPositivos, reviewsNegativos);
 
     return 0;
 }
@@ -320,7 +320,7 @@ void calcularProbabilidadesDePalabras(map<string, float> &diccionarioT, map<stri
         iterador ++;
     }
 
-    //Muestra por pantalla las palabras con su probabilidad
+//    Muestra por pantalla las palabras con su probabilidad
 //    map<string, float>::iterator iteradorM = probabilidades.begin();
 //    while (iteradorM != probabilidades.end())
 //    {
@@ -330,9 +330,10 @@ void calcularProbabilidadesDePalabras(map<string, float> &diccionarioT, map<stri
 }
 
 /*Realiza la clasificacion correspondiente de un archivo con reviews */
-void clasificarReview(map<string, float> &probabilidadesP, map<string, float> &probabilidadesN, float reviewsTotales, float reviewsPositivos, float reviewsNegativos)
+void clasificarReviewBayes(map<string, float> &probabilidadesP, map<string, float> &probabilidadesN, float reviewsTotales, float reviewsPositivos, float reviewsNegativos)
 {
     ifstream archivo;
+    ofstream archivoSalida;
     string word, id, review, numeroID;
     char c;
     bool esStopWord, letra;
@@ -344,11 +345,18 @@ void clasificarReview(map<string, float> &probabilidadesP, map<string, float> &p
     probabilidadReviewP = (reviewsPositivos/reviewsTotales);
     probabilidadReviewN = (reviewsNegativos/reviewsTotales);
 
-    archivo.open("unlabeledTrainData.tsv");
+    archivo.open("testData.tsv");
 
     if(archivo.fail())
     {
         cout << "Error al abrir el archivo unlabeledTrainData.tsv" << endl;
+    }
+
+    archivoSalida.open("salida.csv");
+
+    if(archivoSalida.fail())
+    {
+        cout << "Error al abrir el archivo salida.csv" << endl;
     }
 
     while(!archivo.eof())
@@ -401,20 +409,22 @@ void clasificarReview(map<string, float> &probabilidadesP, map<string, float> &p
             if (probabilidadDeSerPositivo > probabilidadDeSerNegativo)
             {
                 reviewsClasificadosPositivos.insert( pair<string, double> (numeroID, probabilidadDeSerPositivo));
+                archivoSalida << numeroID << ',' << "1" << endl;
             }
             if (probabilidadDeSerPositivo < probabilidadDeSerNegativo)
             {
                 reviewsClasificadosNegativos.insert( pair<string, double> (numeroID, probabilidadDeSerNegativo));
+                archivoSalida << numeroID << ',' << "0" << endl;
             }
         }
         else
         {
             reviewsSinClasificar.insert( pair<string, double> (numeroID, 0));
-            cout << "PROB SER POSITIVO: " << probabilidadDeSerPositivo << "  PROB DE SER NEGATIVO: " << probabilidadDeSerNegativo << endl;
         }
     }
 
     archivo.close();
+    archivoSalida.close();
 
     //Muestro los resultados por pantalla
     map<string, double>::iterator iteradorReviewsP = reviewsClasificadosPositivos.begin();
@@ -433,6 +443,8 @@ void clasificarReview(map<string, float> &probabilidadesP, map<string, float> &p
 
     cout << "Se han encontrado: " << reviewsClasificadosPositivos.size() << "reviews positivos" << endl;
     cout << "Se han encontrado: " << reviewsClasificadosNegativos.size() << "reviews negativos" << endl;
-    cout << "Se han encontrado: " << reviewsSinClasificar.size() << "reviews sin clasificar" << endl;
+    cout << "Se han encontrado: " << reviewsSinClasificar.size() << " reviews sin clasificar" << endl;
     cout << "El total de reviews clasificados fue: " << reviewsClasificadosPositivos.size() + reviewsClasificadosNegativos.size() + reviewsSinClasificar.size() << endl;
 }
+
+
