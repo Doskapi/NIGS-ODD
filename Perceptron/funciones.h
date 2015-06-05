@@ -1,5 +1,3 @@
-
-//Inclusiones necesarias
 #include <fstream>
 #include <sstream>
 #include <iostream>
@@ -12,6 +10,7 @@
 #include <map>
 #include <string>
 #include <cmath>
+#include <vector>
 
 using namespace std;
 
@@ -25,22 +24,20 @@ struct cuerpoConNgramas {
     list<string> listaReview;
 };
 
-struct cuerpoConHash {
+
+struct cuerpoConLista {
     bool sentiment;
-    map<unsigned long int,char> hashTable;
+    list < std::vector<int> > features;
 };
 
-uint32_t FNV32(string & s);
-
-int hash32(string & key, unsigned long int & tableSize);
+struct cuerpoConProb {
+    bool sentiment;
+    double probabilidad;
+};
 
 uint64_t FNV64(string & s);
 
 int hash64(string & key, unsigned long int & tableSize);
-
-double productoEscalar(list<char> & review ,list<double> & listaDePesos);
-
-double productoEscalar(map<unsigned long int,char> &review ,list<double> &listaDePesos);
 
 int contarPalabras(string & frase);
 
@@ -52,30 +49,16 @@ bool buscarStopWord(string &word,list<string> & listaStopWords);
 //Incrementa en uno en la posicion indicada;
 void incrementar(list<char> & hashTable,unsigned long int & posicion );
 
-list<double> calcularPesos(map<string, cuerpoConHash> & diccionario, int & pasosMaximos);
-
-map<string,cuerpoConHash> hashearNgramas(map<string,cuerpoConNgramas> & diccionario);
+std::vector<float> calcularPesos(map<string, cuerpoConLista> & diccionario, int &pasosMaximos);
 
 bool esLetra (char & c);
 
-list <string>  crearListaDeStopWords();
+vector<string>  crearListaDeStopWords();
 
 map<string, cuerpoConNgramas> obtenerNgramas(map<string, cuerpoDelReview> &diccionario, int &tamanio);
 
-map<string, cuerpoConNgramas> crearDiccionariosDeReviewsPerceptron(int &tamanio);
+map<string, cuerpoConLista> crearDiccionarioDeReviews(int &tamanio, bool entrenando);
 
-void crearDiccionarioInicial(map<string, cuerpoDelReview> &diccionario);
+float productoEscalar(list < std::vector<int> > *review ,std::vector<float> *listaDePesos);
 
-map<string, list<string> > crearDiccionariosDeReviewsDelArchAClasificar(int &tamanio);
 
-map<string, map<unsigned long int,char>  > crearDiccionariosDeReviewsDelArchivoAClasificar(int &tamanio);
-
-map<string, cuerpoConHash > crearDiccionariosDeReviewsAClasificar(int &tamanio);
-
-void crearDiccionarioInicialDelArchAClasificar(map<string, string> &diccionario);
-
-map<string, list<string> > obtenerNgramasDelArchAClasificar(map<string, string> &diccionario, int &tamanio);
-
-map<string, list<char> > hashearNgramasDelArchAClasificar(map<string, list<string> > & diccionario);
-
-map<string, cuerpoConHash> crearDiccionariosDeReviewsChar(int &tamanio);
