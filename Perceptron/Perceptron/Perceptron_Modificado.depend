@@ -53,7 +53,7 @@
 	"funciones.h"
 	<vector>
 
-1433532652 source:/home/guillermo/NIGS-ODD/Perceptron_Modificado/main.cpp
+1433538209 source:/home/guillermo/NIGS-ODD/Perceptron_Modificado/main.cpp
 	<fstream>
 	<sstream>
 	<iostream>
@@ -64,7 +64,7 @@
 	<vector>
 	<iterator>
 
-1433451367 /home/guillermo/NIGS-ODD/Perceptron_Modificado/funciones.h
+1433538377 /home/guillermo/NIGS-ODD/Perceptron_Modificado/funciones.h
 	<fstream>
 	<sstream>
 	<iostream>
@@ -79,8 +79,28 @@
 	<cmath>
 	<vector>
 
-1433530907 source:/home/guillermo/NIGS-ODD/Perceptron_Modificado/funciones.cpp
+1433538209 source:/home/guillermo/NIGS-ODD/Perceptron_Modificado/funciones.cpp
 	"funciones.h"
 	<vector>
 	<ctype.h>
+
+1433538416 source:/home/guillermo/NIGS-ODD/Perceptron/funciones.cpp
+	"funciones.h"
+	<vector>
+	<ctype.h>
+
+1433538377 /home/guillermo/NIGS-ODD/Perceptron/funciones.h
+	<fstream>
+	<sstream>
+	<iostream>
+	<list>
+	<map>
+	<stdio.h>
+	<string>
+	<cstdlib>
+	<stdint.h>
+	<map>
+	<string>
+	<cmath>
+	<vector>
 

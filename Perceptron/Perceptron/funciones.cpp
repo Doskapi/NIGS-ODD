@@ -44,7 +44,7 @@ void unir_listas(vector<string> *lista_1, vector<string> *lista_2) {
 
 vector<float> minYMax(vector<float> *vec){
     vector<float> minMax(2);
-    for (int i =0 ; i < (*vec).size() ; i++){
+    for (unsigned int i = 0; i < (*vec).size() ; i++){
         if (i==0){
             minMax[0] = (*vec)[i];
             minMax[1] = (*vec)[i];
@@ -67,7 +67,7 @@ float productoEscalar(list < std::vector<int> > *review ,std::vector<float> *lis
 }
 
 
-vector<float> calcularPesos(map<string, cuerpoConLista> & diccionario, int &max_iteraciones){
+vector<float> calcularPesos(map<string, cuerpoConLista> *diccionario, int &max_iteraciones){
 
     list <vector<int> > reviews;
     vector<float> listaDePesos (TAMANIO_DE_LA_TABLA, 0);
@@ -77,7 +77,7 @@ vector<float> calcularPesos(map<string, cuerpoConLista> & diccionario, int &max_
 
     for(int iteracion = 0; iteracion < max_iteraciones; iteracion++) {
         int errores = 0;
-        for (map<string,cuerpoConLista>::iterator it = diccionario.begin(); it != diccionario.end(); ++it) {
+        for (map<string,cuerpoConLista>::iterator it = (*diccionario).begin(); it != (*diccionario).end(); ++it) {
             reviews = it->second.features;
 			producto = productoEscalar(&reviews, &listaDePesos);
             if (producto > 0.5) {

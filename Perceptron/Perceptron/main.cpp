@@ -5,7 +5,6 @@
 #include <time.h>
 #include "funciones.h"
 
-#define TAMANIO_DE_NGRAMAS 1
 #define PASOS_MAXIMOS 100
 #define ARCH_DE_ENTRENAMIENTO "archivos/labeledTrainData.tsv"
 #define ARCH_A_CLASIFICAR "archivos/testData.tsv"
@@ -27,6 +26,7 @@ void clasificar(vector<float> *listaDePesos) {
     float prod_minimo = 0;
     float prod_maximo = 1;
     int iteracion = 0;
+
     for (map<string,cuerpoConLista>::iterator it = diccionario.begin(); it != diccionario.end(); ++it) {
         list < vector<int> >reviews = it->second.features;
 		float producto = productoEscalar(&reviews, listaDePesos);
@@ -40,14 +40,7 @@ void clasificar(vector<float> *listaDePesos) {
 		}
 		iteracion++;
     }
-//        if (it->first != "") {
-//            //float probabilidad = (producto - minMax[0])/(minMax[1] - minMax[0]);
-//            if(producto >  0.5){
-//                archivo << (string)it->first << ",1\n";
-//            } else {
-//                archivo << (string)it->first << ",0\n";
-//            }
-//        }
+
     ofstream archivo;
     archivo.open("archivos/Resultados.csv");
     archivo << "\"id\",\"sentiment\"\n";
@@ -65,7 +58,7 @@ vector<float> entrenar() {
     map<string, cuerpoConLista> diccionario = crearDiccionarioDeReviews(true);
     cout << "\t-Archivo de Reviews para entrenar procesados." << endl << endl;
     cout << "*Calculando pesos.. " << endl;
-    vector<float> listaDePesos = calcularPesos(diccionario, max_iteraciones);
+    vector<float> listaDePesos = calcularPesos(&diccionario, max_iteraciones);
     cout << "\t-Pesos calculados" << endl << endl;
 
 //    cout << "*Escribiendo pesos en archivo: " << endl;

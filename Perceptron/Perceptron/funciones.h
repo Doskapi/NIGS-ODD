@@ -45,7 +45,7 @@ bool buscarStopWord(string &word,list<string> & listaStopWords);
 //Incrementa en uno en la posicion indicada;
 void incrementar(list<char> & hashTable,unsigned long int & posicion );
 
-std::vector<float> calcularPesos(map<string, cuerpoConLista> & diccionario, int &pasosMaximos);
+std::vector<float> calcularPesos(map<string, cuerpoConLista> *diccionario, int &pasosMaximos);
 
 bool esLetra (char & c);
 
