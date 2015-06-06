@@ -333,7 +333,7 @@ void calcularProbabilidadesDePalabras(map<string, float> &diccionarioT, map<stri
 void clasificarReviewBayes(map<string, float> &probabilidadesP, map<string, float> &probabilidadesN, float reviewsTotales, float reviewsPositivos, float reviewsNegativos)
 {
     ifstream archivo;
-    ofstream archivoSalida, archivoProbabilidades;
+    ofstream archivoSalida;
     string word, id, review, numeroID;
     char c;
     bool esStopWord, letra;
@@ -359,12 +359,7 @@ void clasificarReviewBayes(map<string, float> &probabilidadesP, map<string, floa
         cout << "Error al abrir el archivo resultadosBayes.csv" << endl;
     }
 
-    archivoProbabilidades.open("archivos/probabilidadesBayes.csv");
-
-    if(archivoProbabilidades.fail())
-    {
-        cout << "Error al abrir el archivo salida.csv" << endl;
-    }
+    archivoSalida << "\"id\",\"sentiment\"" << endl;
 
     while(!archivo.eof())
     {
@@ -419,14 +414,12 @@ void clasificarReviewBayes(map<string, float> &probabilidadesP, map<string, floa
                 reviewsClasificadosPositivos.insert( pair<string, double> (numeroID, probabilidadDeSerPositivo));
                 probabilidadBayes = 1 - (probabilidadDeSerPositivo/probabilidadTotal);
                 archivoSalida << numeroID << ',' << probabilidadBayes << endl;
-                archivoProbabilidades << numeroID << ',' << probabilidadBayes << ',' << "1" << endl;
             }
             if (probabilidadDeSerPositivo < probabilidadDeSerNegativo)
             {
                 reviewsClasificadosNegativos.insert( pair<string, double> (numeroID, probabilidadDeSerNegativo));
                 probabilidadBayes = 1 - (probabilidadDeSerPositivo/probabilidadTotal);
                 archivoSalida << numeroID << ',' << probabilidadBayes << endl;
-                archivoProbabilidades << numeroID << ',' << probabilidadBayes << ',' << "0" << endl;
             }
         }
         else

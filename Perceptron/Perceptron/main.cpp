@@ -64,15 +64,16 @@ vector<float> entrenar() {
     vector<float> listaDePesos = calcularPesos(&diccionario, max_iteraciones);
     cout << "\t-Pesos calculados" << endl << endl;
 
-//    cout << "*Escribiendo pesos en archivo: " << endl;
-//    const char* ruta_archivo = ARCH_LISTA_DE_PESOS;
-//    ofstream archListaDePesos;
-//    archListaDePesos.open("archivos/listaDePesos.csv");
-//    for (std::vector<float>::iterator iterador = listaDePesos.begin(); iterador != listaDePesos.end(); iterador++ ) {
-//        archListaDePesos << *iterador << "\n";
-//    }
-//    archListaDePesos.close();
-//    cout << "\t-Archivo de pesos creado." << endl << endl;
+    cout << "*Escribiendo pesos en archivo: " << endl;
+    const char* ruta_archivo = ARCH_LISTA_DE_PESOS;
+    ofstream archListaDePesos;
+    archListaDePesos.open("archivos/listaDePesos.csv");
+    for (std::vector<float>::iterator iterador = listaDePesos.begin(); iterador != listaDePesos.end(); iterador++ ) {
+        archListaDePesos << *iterador << "\n";
+    }
+    archListaDePesos.close();
+    cout << "\t-Archivo de pesos creado." << endl << endl;
+
     return listaDePesos;
 }
 
