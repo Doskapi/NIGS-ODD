@@ -333,11 +333,11 @@ void calcularProbabilidadesDePalabras(map<string, float> &diccionarioT, map<stri
 void clasificarReviewBayes(map<string, float> &probabilidadesP, map<string, float> &probabilidadesN, float reviewsTotales, float reviewsPositivos, float reviewsNegativos)
 {
     ifstream archivo;
-    ofstream archivoSalida;
+    ofstream archivoSalida, archivoProbabilidades;
     string word, id, review, numeroID;
     char c;
     bool esStopWord, letra;
-    double probabilidadReviewP, probabilidadReviewN, probabilidadDeSerPositivo, probabilidadDeSerNegativo;
+    double probabilidadReviewP, probabilidadReviewN, probabilidadDeSerPositivo, probabilidadDeSerNegativo, probabilidadTotal, probabilidadBayes;
     map<string, double> reviewsClasificadosPositivos;
     map<string, double> reviewsClasificadosNegativos;
     map<string, double> reviewsSinClasificar;
@@ -355,6 +355,13 @@ void clasificarReviewBayes(map<string, float> &probabilidadesP, map<string, floa
     archivoSalida.open("salida.csv");
 
     if(archivoSalida.fail())
+    {
+        cout << "Error al abrir el archivo salida.csv" << endl;
+    }
+
+    archivoProbabilidades.open("probabilidadesBayes.csv");
+
+    if(archivoProbabilidades.fail())
     {
         cout << "Error al abrir el archivo salida.csv" << endl;
     }
@@ -403,6 +410,7 @@ void clasificarReviewBayes(map<string, float> &probabilidadesP, map<string, floa
             }
         }
 
+        probabilidadTotal = (probabilidadDeSerPositivo + probabilidadDeSerNegativo);
         //Verifico si el review es Positivo o Negativo
         if((probabilidadDeSerPositivo != 0) && (probabilidadDeSerNegativo !=0))
         {
@@ -410,11 +418,15 @@ void clasificarReviewBayes(map<string, float> &probabilidadesP, map<string, floa
             {
                 reviewsClasificadosPositivos.insert( pair<string, double> (numeroID, probabilidadDeSerPositivo));
                 archivoSalida << numeroID << ',' << "1" << endl;
+                probabilidadBayes = 1 - (probabilidadDeSerPositivo/probabilidadTotal);
+                archivoProbabilidades << numeroID << ',' << probabilidadBayes << ',' << "1" << endl;
             }
             if (probabilidadDeSerPositivo < probabilidadDeSerNegativo)
             {
                 reviewsClasificadosNegativos.insert( pair<string, double> (numeroID, probabilidadDeSerNegativo));
                 archivoSalida << numeroID << ',' << "0" << endl;
+                probabilidadBayes = 1 - (probabilidadDeSerPositivo/probabilidadTotal);
+                archivoProbabilidades << numeroID << ',' << probabilidadBayes << ',' << "0" << endl;
             }
         }
         else
