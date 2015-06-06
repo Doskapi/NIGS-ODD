@@ -48,7 +48,7 @@ void contarReviews(float &reviewsTotales, float &reviewsPositivos, float &review
 {
     ifstream archivo;
     string clasificacionDelReview, id;
-    archivo.open("labeledTrainData.tsv");
+    archivo.open("archivos/labeledTrainData.tsv");
 
     if(archivo.fail())
     {
@@ -345,11 +345,11 @@ void clasificarReviewBayes(map<string, float> &probabilidadesP, map<string, floa
     probabilidadReviewP = (reviewsPositivos/reviewsTotales);
     probabilidadReviewN = (reviewsNegativos/reviewsTotales);
 
-    archivo.open("testData.tsv");
+    archivo.open("archivos/testData.tsv");
 
     if(archivo.fail())
     {
-        cout << "Error al abrir el archivo unlabeledTrainData.tsv" << endl;
+        cout << "Error al abrir el archivo testData.tsv" << endl;
     }
 
     archivoSalida.open("salida.csv");
