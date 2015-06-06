@@ -95,7 +95,7 @@ void crearDiccionariosDeReviews(map<string, float> &diccionarioT, map<string, fl
     bool esStopWord, esPositivo, esNegativo, letra;
     float cant;
 
-    archivo.open("labeledTrainData.tsv");
+    archivo.open("archivos/labeledTrainData.tsv");
 
     if(archivo.fail())
     {
@@ -352,11 +352,11 @@ void clasificarReviewBayes(map<string, float> &probabilidadesP, map<string, floa
         cout << "Error al abrir el archivo testData.tsv" << endl;
     }
 
-    archivoSalida.open("salida.csv");
+    archivoSalida.open("archivos/resultadosBayes.csv");
 
     if(archivoSalida.fail())
     {
-        cout << "Error al abrir el archivo salida.csv" << endl;
+        cout << "Error al abrir el archivo resultadosBayes.csv" << endl;
     }
 
     archivoProbabilidades.open("probabilidadesBayes.csv");
