@@ -6,9 +6,11 @@
 #include "funciones.h"
 
 #define PASOS_MAXIMOS 100
+#define ARCH_DE_MAS_REVIEWS_SIN_ENTRENAR "archivos/unlabeledTrainData.tsv"
 #define ARCH_DE_ENTRENAMIENTO "archivos/labeledTrainData.tsv"
 #define ARCH_A_CLASIFICAR "archivos/testData.tsv"
 #define ARCH_RESULTADOS "archivos/resultados.csv"
+#define ARCH_LISTA_DE_PESOS "archivos/listaDePesos.csv"
 
 using namespace std;
 #include <string>
@@ -42,7 +44,8 @@ void clasificar(vector<float> *listaDePesos) {
     }
 
     ofstream archivo;
-    archivo.open("archivos/Resultados.csv");
+    const char* ruta_archivo = ARCH_RESULTADOS;
+    archivo.open(ruta_archivo);
     archivo << "\"id\",\"sentiment\"\n";
     for (map<string, float>::iterator iterador = id_y_producto.begin(); iterador != id_y_producto.end(); ++iterador) {
         float probabilidad = ((iterador->second) - prod_minimo) / (prod_maximo - prod_minimo);
@@ -62,6 +65,7 @@ vector<float> entrenar() {
     cout << "\t-Pesos calculados" << endl << endl;
 
 //    cout << "*Escribiendo pesos en archivo: " << endl;
+//    const char* ruta_archivo = ARCH_LISTA_DE_PESOS;
 //    ofstream archListaDePesos;
 //    archListaDePesos.open("archivos/listaDePesos.csv");
 //    for (std::vector<float>::iterator iterador = listaDePesos.begin(); iterador != listaDePesos.end(); iterador++ ) {

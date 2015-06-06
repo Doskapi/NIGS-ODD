@@ -10,6 +10,13 @@
 #define TAMANIO_DE_LA_TABLA 33554432
 #define FILTRO 50000 // para ver menos cosas
 
+#define ARCH_DE_MAS_REVIEWS_SIN_ENTRENAR "archivos/unlabeledTrainData.tsv"
+#define ARCH_DE_ENTRENAMIENTO "archivos/labeledTrainData.tsv"
+#define ARCH_A_CLASIFICAR "archivos/testData.tsv"
+#define ARCH_RESULTADOS "archivos/resultados.csv"
+#define ARCH_LISTA_DE_PESOS "archivos/listaDePesos.csv"
+
+
 using namespace std;
 
 
@@ -222,9 +229,9 @@ map<string, cuerpoConLista> crearDiccionarioDeReviews(bool entrenando) {
 
     const char* ruta_archivo;
     if (entrenando) {
-        ruta_archivo = "archivos/labeledTrainData.tsv";
+        ruta_archivo = ARCH_DE_ENTRENAMIENTO;
     } else {
-        ruta_archivo = "archivos/testData.tsv";
+        ruta_archivo = ARCH_A_CLASIFICAR;
     }
 
     ifstream archivo;
