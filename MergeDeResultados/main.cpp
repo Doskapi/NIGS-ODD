@@ -11,7 +11,8 @@ using namespace std;
 
 #define ARCH_RESULTADOS_PERCEPTRON "archivos/resultadosPerceptron.csv"
 #define ARCH_RESULTADOS_BAYES "archivos/resultadosBayes.csv"
-#define ARCH_RESULTADOS_MERGE_PORCENTAJE "archivos/resultadosMerge.csv"
+#define ARCH_RESULTADOS_MERGE_PORCENTAJE "archivos/resultadosMergePorcentaje.csv"
+#define ARCH_RESULTADOS_MERGE_DISTANCIA "archivos/resultadosMergeDistancia.csv"
 
 
 void mergeDeProbabilidadesPorProrcentajeDeArchivo(const char* direccionDelArchivoDeResultadosPerceptron, const char* direccionDelArchivoDeResultadosNaiveBayes, const char* direccionDelArchivoDeResultadosMerge) {
@@ -104,7 +105,6 @@ void mergeDeProbabilidadesPorProrcentajeDeArchivo(const char* direccionDelArchiv
 }
 
 
-
 void mergeDeProbabilidadesSegunDistancia(const char* direccionDelArchivoDeResultadosPerceptron, const char* direccionDelArchivoDeResultadosNaiveBayes, const char* direccionDelArchivoDeResultadosMerge) {
     ifstream archPerceptron;
     ifstream archNaiveBayes;
@@ -112,23 +112,11 @@ void mergeDeProbabilidadesSegunDistancia(const char* direccionDelArchivoDeResult
     string idPer, clasifPer;
     string idBay, clasifBay;
     map<string,float> mapaPer, mapaBay;
+    float probabilidadPer ,probabilidadBay;
 
-    float probabilidadPer, probabilidadBay, resultado;
-
-    int porcentajeEnteroPer, porcentajeEnteroBay;
-    float porcentajePer, porcentajeBay;
     cout << "+++++++++++++++++++++++++++++++++++++++++++" << endl;
-    cout << "+            Proceso de Merge             +" << endl;
+    cout << "+     Proceso de Merge por Distancias     +" << endl;
     cout << "+++++++++++++++++++++++++++++++++++++++++++" << endl << endl;
-    cout << "Que porcentaje quiere darle a Perceptron? (entre  y 100, numero entero)" << endl;
-    cout << "Porcentaje(%): ";
-    cin >> porcentajeEnteroPer;
-    cout << endl;
-    cout << "El porcentaje(%) del Naive-Bayes sera: " << 100-porcentajeEnteroPer << endl;
-    porcentajeEnteroBay = 100-porcentajeEnteroPer;
-    porcentajePer = (float)porcentajeEnteroPer/100;
-    porcentajeBay = (float)porcentajeEnteroBay/100;
-
 
     archPerceptron.open(direccionDelArchivoDeResultadosPerceptron);
     if (archPerceptron.fail()) {
@@ -170,18 +158,36 @@ void mergeDeProbabilidadesSegunDistancia(const char* direccionDelArchivoDeResult
 
     map<string,float>::iterator itPer = mapaPer.begin();
     map<string,float>::iterator itBay = mapaBay.begin();
-
+    float difPer, difBay;
     cout << endl;
 
     while( itPer != mapaPer.end() ){
-
-        resultado = porcentajePer * (itPer->second) + porcentajeBay * (itBay->second);
-        if (itPer->first != itBay->first){
-            cout << itPer->first << itPer->second << "  " << itBay->first << itBay->second << "  " << resultado << endl;
+        if ( ((itPer->second >= 0.5) && (itBay->second < 0.5)) || ((itBay->second >= 0.5) && (itPer->second < 0.5)) ){
+            if ((itPer->second >= 0.5) && (itBay->second < 0.5)) {
+                difPer = itPer->second - 0.5; //pos
+                difBay = 0.5 - itBay->second;  //neg
+                if(difPer > difBay){
+                    //difPer es la mas lejos
+                    archResultados << itPer->first << "," << itPer->second << endl;
+                }else{
+                    // difBay es la mas lejos
+                    archResultados << itBay->first << "," << itBay->second << endl;
+                }
+            }else{
+                difBay = itBay->second - 0.5; //pos
+                difPer = 0.5 - itPer->second;  //neg
+                if(difPer > difBay){
+                    //difPer es la mas lejos
+                    archResultados << itPer->first << "," << itPer->second << endl;
+                }else{
+                    // difBay es la mas lejos
+                    archResultados << itBay->first << "," << itBay->second << endl;
+                }
+            }
+        }else{
+            // escribo uno de los dos total son iguales
+            archResultados << itPer->first << "," << itPer->second << endl;
         }
-
-        archResultados << itPer->first << "," << resultado << endl;
-
         itPer++;
         itBay++;
     }
@@ -195,10 +201,10 @@ void mergeDeProbabilidadesSegunDistancia(const char* direccionDelArchivoDeResult
 }
 
 
-
-
 int main()
 {
-    mergeDeProbabilidadesSegunDistancia(ARCH_RESULTADOS_PERCEPTRON, ARCH_RESULTADOS_PERCEPTRON, ARCH_RESULTADOS_MERGE_PORCENTAJE);
+    mergeDeProbabilidadesPorProrcentajeDeArchivo(ARCH_RESULTADOS_PERCEPTRON, ARCH_RESULTADOS_PERCEPTRON, ARCH_RESULTADOS_MERGE_PORCENTAJE);
+    mergeDeProbabilidadesSegunDistancia(ARCH_RESULTADOS_PERCEPTRON, ARCH_RESULTADOS_PERCEPTRON, ARCH_RESULTADOS_MERGE_DISTANCIA);
+
     return 0;
 }
