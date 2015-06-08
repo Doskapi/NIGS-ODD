@@ -1,0 +1,10 @@
+# depslib dependency file v1.0
+1433719396 source:/home/guillermo/NIGS-ODD/IncrementadorDelSetDeDatos/main.cpp
+	<iostream>
+	<vector>
+	<utility>
+	<fstream>
+	<string>
+	<cstdlib>
+	<map>
+

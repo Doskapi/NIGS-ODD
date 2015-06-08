@@ -1,0 +1,9 @@
+# depslib dependency file v1.0
+1433697499 source:/home/guillermo/NIGS-ODD/main.cpp
+	<iostream>
+	<vector>
+	<utility>
+	<fstream>
+	<string>
+	<cstdlib>
+
