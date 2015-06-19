@@ -4,33 +4,43 @@
 #include <map>
 #include <string>
 #include <cmath>
+#include <set>
+#include <vector>
+#include <sstream>
 
 #define FILTRO 50
 
 using namespace std;
 
-bool esLetra (char c);
-bool buscarStopWord(string word);
+set<string> crearListaDeStopWords();
+bool esStopWord(string palabra, set<string> &listaStopsWords);
 void contarReviews(float &reviewsTotales, float &reviewsPositivos, float &reviewsNegativos);
-void crearDiccionariosDeReviews(map<string, float> &diccionarioT, map<string, float> &diccionarioP, map<string, float> &diccionarioN);
+void crearDiccionariosDeReviews(map<string, float> &diccionarioT, map<string, float> &diccionarioP, map<string, float> &diccionarioN, set<string> &listaStopsWords);
+string filtrarReview(string &review, set<string> &listaStopWords);
+vector<string> &split(const string &s, char delim, vector<string> &elems);
+vector<string> split(const string &s, char delim);
+vector<string> construirNGrama(vector<string> &listaPalabras, int tamanioNgrama);
+void agregarADiccionarios(map<string, float> &diccionarioT, map<string, float> &diccionarioP, map<string, float> &diccionarioN, vector<string> word, bool esPositivo, bool esNegativo);
+void agregarADiccionario(map<string, float> &diccionario, vector<string> word);
 void filtrarDiccionariosDeReviews(map<string, float> &diccionarioT, map<string, float> &diccionarioP, map<string, float> &diccionarioN);
 void filtrarDiccionario(map<string, float> &diccionario);
 void mostrarDiccionariosDeReviews(map<string, float> &diccionarioT, map<string, float> &diccionarioP, map<string, float> &diccionarioN);
 void calcularProbabilidadesDePalabras(map<string, float> &diccionarioT, map<string, float> &diccionario, map<string, float> &probabilidades);
-void clasificarReviewBayes(map<string, float> &probabilidadesP, map<string, float> &probabilidadesN, float reviewsTotales, float reviewsPositivos, float reviewsNegativos);
+void clasificarReviewBayes(map<string, float> &probabilidadesP, map<string, float> &probabilidadesN, float reviewsTotales, float reviewsPositivos, float reviewsNegativos, set<string> &listaStopWords);
+void mostrarResultadosPorPantalla(map<string, double> reviewsClasificadosPositivos, map<string, double> reviewsClasificadosNegativos, map<string, double> reviewsSinClasificar);
+void unir_listas(vector<string> &lista_1, vector<string> &lista_2);
 
 int main()
 {
     map<string, float> diccionarioT, diccionarioP, diccionarioN, probabilidadesP, probabilidadesN;
     float reviewsTotales, reviewsPositivos, reviewsNegativos;
+    set<string> listaStopWords;
 
+    listaStopWords = crearListaDeStopWords();
     cout << "Contando cantidad de reviews positivos y negativos..." << endl;
     contarReviews(reviewsTotales, reviewsPositivos, reviewsNegativos);
     cout << "Inicializando diccionarios de palabras de los reviews..." << endl;
-    crearDiccionariosDeReviews(diccionarioT, diccionarioP, diccionarioN);
-    //cout << "Filtrando los diccionarios de palabras de los reviews..." << endl;
-    //filtrarDiccionariosDeReviews(diccionarioT, diccionarioP, diccionarioN)
-    //mostrarDiccionariosDeReviews(diccionarioT, diccionarioP, diccionarioN);
+    crearDiccionariosDeReviews(diccionarioT, diccionarioP, diccionarioN, listaStopWords);
     cout << "Calculando Probabilidades Positivas" << endl;
     calcularProbabilidadesDePalabras(diccionarioT, diccionarioP, probabilidadesP);
     cout << "Calculando Probabilidades Negativas" << endl;
@@ -38,7 +48,7 @@ int main()
     cout << "En probabilidadesP hay  " << probabilidadesP.size() << endl;
     cout << "En probabilidadesN hay  " << probabilidadesN.size() << endl;
     cout << "Clasificando reviews..." << endl;
-    clasificarReviewBayes(probabilidadesP, probabilidadesN, reviewsTotales, reviewsPositivos, reviewsNegativos);
+    clasificarReviewBayes(probabilidadesP, probabilidadesN, reviewsTotales, reviewsPositivos, reviewsNegativos, listaStopWords);
 
     return 0;
 }
@@ -59,10 +69,11 @@ void contarReviews(float &reviewsTotales, float &reviewsPositivos, float &review
     reviewsNegativos = 0;
     reviewsPositivos = 0;
 
-    while(!archivo.eof())
+    while(true)
     {
         getline(archivo, id,'\t' );  // Lee el ID hasta el TAB
         getline(archivo, clasificacionDelReview, '\t' );
+        if (archivo.eof()) break;
         if(clasificacionDelReview == "1")
         {
             reviewsPositivos ++;
@@ -87,27 +98,26 @@ void contarReviews(float &reviewsTotales, float &reviewsPositivos, float &review
 - DiccionarioP : Contiene todas las palabras que aparecen en los reviews positivos con sus cantidades
 - DiccionarioN : Contiene todas las palabras que aparecen en los reviews negativos con sus cantidades
 */
-void crearDiccionariosDeReviews(map<string, float> &diccionarioT, map<string, float> &diccionarioP, map<string, float> &diccionarioN)
+void crearDiccionariosDeReviews(map<string, float> &diccionarioT, map<string, float> &diccionarioP, map<string, float> &diccionarioN, set<string> &listaStopsWords)
 {
     ifstream archivo;
     string word, id, clasificacionDelReview, review;
-    char c;
-    bool esStopWord, esPositivo, esNegativo, letra;
-    float cant;
+    bool esPositivo, esNegativo;
+    vector<string> listaPalabras, listaReview, listaReviewBigrama, listaReviewTrigrama;
 
     archivo.open("archivos/labeledTrainData.tsv");
-
     if(archivo.fail())
     {
         cout << "Error al abrir el archivo labeledTrainData.tsv" << endl;
     }
 
-    while(!archivo.eof())
+    while(true)
     {
         esPositivo = false;
         esNegativo = false;
         getline(archivo, id,'\t' );  // Lee el ID hasta el TAB
         getline(archivo, clasificacionDelReview, '\t' ); // Lee la clasficacion hasta el TAB
+        if (archivo.eof()) break;
         if (clasificacionDelReview == "1")
         {
             esPositivo = true;
@@ -117,79 +127,130 @@ void crearDiccionariosDeReviews(map<string, float> &diccionarioT, map<string, fl
             esNegativo = true;
         }
         getline(archivo, review, '\n' ); // lee hasta el proximo tab
-
-        for (unsigned int i = 0; i < review.size(); ++i)
-        {
-            c = review[i];
-            c = tolower(c);
-            letra = esLetra(c);
-
-            if(!letra)
-            {
-                if(!word.empty())
-                {
-                    esStopWord = false;
-                    esStopWord = buscarStopWord(word);
-                    if(!esStopWord)
-                    {
-                        //Agrega al diccionario generico de todas las palabras
-                        map<string, float>::iterator iterador = diccionarioT.find(word);
-                        if(iterador != diccionarioT.end())
-                        {
-                            cant = iterador->second + 1;
-                            diccionarioT[word] = cant;
-                        }
-                        else
-                        {
-                            diccionarioT.insert( pair<string, float> (word, 1));
-                        }
-
-                        if (esPositivo)
-                        {
-                            // Agrega al diccionario de palabras positivas
-                             map<string, float>::iterator iterador = diccionarioP.find(word);
-                            if(iterador != diccionarioP.end())
-                            {
-                                cant = iterador->second + 1;
-                                diccionarioP[word] = cant;
-                            }
-                            else
-                            {
-                                diccionarioP.insert( pair<string, float> (word, 1));
-                            }
-                        }
-
-                         if (esNegativo)
-                        {
-                            // Agrega al diccionario de palabras negativas
-                             map<string, float>::iterator iterador = diccionarioN.find(word);
-                            if(iterador != diccionarioN.end())
-                            {
-                                cant = iterador->second + 1;
-                                diccionarioN[word] = cant;
-                            }
-                            else
-                            {
-                                diccionarioN.insert( pair<string, float> (word, 1));
-                            }
-                        }
-
-                        word.clear();
-                    }
-                }
-            }
-            else
-            {
-                word += c;
-            }
-        }
+        review = filtrarReview(review, listaStopsWords);
+        listaPalabras = split(review, ' ');
+        listaReview = construirNGrama(listaPalabras, 1);
+        listaReviewBigrama = construirNGrama(listaPalabras, 2);
+        listaReviewTrigrama = construirNGrama(listaPalabras, 3);
+        agregarADiccionarios(diccionarioT, diccionarioP, diccionarioN, listaReview, esPositivo, esNegativo);
+        agregarADiccionarios(diccionarioT, diccionarioP, diccionarioN, listaReviewBigrama, esPositivo, esNegativo);
+        agregarADiccionarios(diccionarioT, diccionarioP, diccionarioN, listaReviewTrigrama, esPositivo, esNegativo);
     }
     archivo.close();
  }
 
- /* Filtra de los diccionarios aquellas palabras que aparezcan menos de FILTRO veces */
- void filtrarDiccionariosDeReviews(map<string, float> &diccionarioT, map<string, float> &diccionarioP, map<string, float> &diccionarioN)
+string filtrarReview(string &review, set<string> &listaStopWords)
+{
+    string cadena = "";
+    string reviewFiltrado = "";
+    bool eliminarStopWords = false;
+
+    if ((listaStopWords).empty())
+    {
+        eliminarStopWords = false;
+    }
+
+    for (unsigned int indice = 0; indice < (review).size(); indice++)
+    {
+        char caracter = tolower((review)[indice]);
+        if (!isalpha(caracter) && !isdigit(caracter))
+        {
+            if (cadena != "")
+            {
+                if (eliminarStopWords)
+                {
+                    if (!esStopWord(cadena, listaStopWords))
+                    {
+                        reviewFiltrado += cadena + " ";
+                    }
+                }
+                else
+                {
+                    reviewFiltrado += cadena + " ";
+                }
+                cadena = "";
+            }
+        }
+        else
+        {
+            cadena += caracter;
+        }
+    }
+    return reviewFiltrado;
+}
+
+vector<string> &split(const string &s, char delim, vector<string> &elems)
+{
+    stringstream ss(s);
+    string item;
+    while (getline(ss, item, delim))
+    {
+        elems.push_back(item);
+    }
+    return elems;
+}
+
+vector<string> split(const string &s, char delim)
+{
+    vector<string> elems;
+    split(s, delim, elems);
+    return elems;
+}
+
+vector<string> construirNGrama(vector<string> &listaPalabras, int tamanioNgrama)
+{
+    int cantPalabras = (listaPalabras).size();
+    vector<string> listaNGramas;
+
+    for (int indice = 0; indice <= (cantPalabras - tamanioNgrama); indice++)
+    {
+            string nGrama = "";
+            for (int subIndice = 0; subIndice < tamanioNgrama; subIndice++)
+            {
+                nGrama += " " + ((listaPalabras)[(indice + subIndice)]);
+            }
+            listaNGramas.push_back(nGrama);
+    }
+    return listaNGramas;
+}
+
+void agregarADiccionarios(map<string, float> &diccionarioT, map<string, float> &diccionarioP, map<string, float> &diccionarioN, vector<string> word, bool esPositivo, bool esNegativo)
+{
+    agregarADiccionario(diccionarioT, word);
+    if (esPositivo)
+    {
+        agregarADiccionario(diccionarioP, word);
+    }
+    if (esNegativo)
+    {
+        agregarADiccionario(diccionarioN, word);
+    }
+ }
+
+ void agregarADiccionario(map<string, float> &diccionario, vector<string> listaNGramas)
  {
+    float cant;
+    string palabra;
+
+    for (unsigned int i = 0; i < listaNGramas.size() ; i++)
+    {
+        palabra = listaNGramas[i];
+        map<string, float>::iterator iterador = diccionario.find(palabra);
+        if(iterador != diccionario.end())
+        {
+            cant = iterador->second + 1;
+            diccionario[palabra] = cant;
+        }
+        else
+        {
+            diccionario.insert( pair<string, float> (palabra, 1));
+        }
+    }
+ }
+
+ /* Filtra de los diccionarios aquellas palabras que aparezcan menos de FILTRO veces */
+void filtrarDiccionariosDeReviews(map<string, float> &diccionarioT, map<string, float> &diccionarioP, map<string, float> &diccionarioN)
+{
      filtrarDiccionario(diccionarioT);
      filtrarDiccionario(diccionarioP);
      filtrarDiccionario(diccionarioN);
@@ -227,59 +288,46 @@ void filtrarDiccionario(map<string, float> &diccionario)
     cout << "En total se encontraron: " << diccionarioN.size() <<" palabras negativas"<< endl;
  }
 
- /* Retorna true si el char es una letra, caso contrario retorna false */
- bool esLetra (char c)
- {
-     if (c == 'a' || c == 'b' || c == 'c' || c == 'd' || c == 'e' || c == 'f' || c == 'g' || c == 'h' ||
-         c == 'i' || c == 'j' || c == 'k' || c == 'l' || c == 'm' || c == 'n' || c == 'o' || c == 'p' ||
-         c == 'q' || c == 'r' || c == 's' || c == 't' || c == 'u' || c == 'v' || c == 'w' || c == 'x' ||
-         c == 'y' || c == 'z')
-     {
-         return true;
-     }
-     else
-    {
-        return false;
+set<string> crearListaDeStopWords()
+{
+    set<string> listaStopsWords;
+    ifstream archivo;
+    archivo.open("archivos/StopWords.txt");
+    string palabra;
+    if (archivo.fail()) {
+        cout << endl << "Error al abrir el archivo de StopsWords" << endl;
+    } else {
+        while(true){
+            getline(archivo, palabra,'\n' );
+            if (archivo.eof())
+            {
+                break;
+            }
+            if (palabra != "") listaStopsWords.insert(palabra);
+        }
     }
- }
+    return listaStopsWords;
+}
 
 /* Retorna true si la palabra es un stopWord, caso contrario retorna false */
-bool buscarStopWord(string word)
+bool esStopWord(string palabra, set<string> &listaStopWords)
 {
-    string w = word;
-    if (w == "a" || w == "about" || w == "above" || w == "after" || w == "again" || w == "against" ||
-        w == "all" || w == "am" || w == "an" || w == "and" || w == "any" || w == "are" || w == "aren't" ||
-        w == "as" || w == "at" || w == "be" || w == "because" || w == "been" || w == "before" || w == "being" ||
-        w == "bellow" || w == "between" || w == "both" || w == "but" ||w == "by" || w == "can't" || w == "cannot" ||
-        w == "could" || w == "couldn't" || w == "did" || w == "didn't" || w == "do" || w == "does" ||
-        w == "doesn't" || w == "doing" || w == "don't" || w == "down" || w == "during" || w == "each" ||
-        w == "few" || w == "for" || w == "from" || w == "further" || w == "had" || w == "hadn't" ||
-        w == "has" || w == "hasn\'t" || w == "have" || w == "haven't" || w == "having" || w == "he" ||
-        w == "he'd" || w == "he\'ll" || w == "he's" || w == "her" || w == "here" || w == "here's" ||
-        w == "hers" || w == "herself" || w == "him" || w == "himself" || w == "his" || w == "how" || w == "how's" ||
-        w == "i" || w == "i'd" || w == "i'll" || w == "i'm" || w == "i've" || w == "if" || w == "in" ||
-        w == "into" || w == "is" || w == "isn't" || w == "it's" || w == "its" || w == "itself" || w == "let's" ||
-        w == "me" || w == "more" || w == "most" || w == "mustn't" || w == "my" || w == "myself" || w == "no" ||
-        w == "nor" || w == "not" || w == "of" || w == "off" || w == "on" || w == "once" || w == "only" ||
-        w == "or" || w == "other" || w == "ought" || w == "our" || w == "ours" || w == "ourselves" || w == "out" ||
-        w == "over" || w == "own" || w == "same" || w == "shan't" || w == "she" || w == "she'd" || w == "she'll" ||
-        w == "she's" || w == "should" || w == "shouldn't" || w == "so" || w == "some" || w == "such" || w == "than" ||
-        w == "that" || w == "that's" || w == "the" || w == "their" || w == "theirs" || w == "them" || w == "themselves" ||
-        w == "then" || w == "there" || w == "there's" || w == "these" || w == "they" || w == "they'd" ||
-        w == "they'll" || w == "they're" || w == "they've" || w == "this" || w == "those" || w == "through" ||
-        w == "to" || w == "too" || w == "under" || w == "until" || w == "up" || w == "very" || w == "was" ||
-        w == "wasn't" || w == "we" || w == "we'd" || w == "we'll" || w == "we're" || w == "we've" ||
-        w == "were" || w == "weren't" || w == "what" || w == "what's" || w == "when" || w == "when's" ||
-        w == "where" || w == "where's" || w == "which" || w == "while" || w == "who" || w == "who's" || w == "whom" ||
-        w == "why" || w == "why's" || w == "with" || w == "won't" || w == "would'" || w == "wouldn\'t" ||
-        w == "you" || w == "you'd" || w == "you'll" || w == "you're" || w == "you've" || w == "your" ||
-        w == "yours" || w == "yourself" || w == "yourselves")
+    bool esStopWord;
+    esStopWord = false;
+    set<string>::iterator iterador = listaStopWords.find(palabra);
+    if(iterador != listaStopWords.end())
     {
-        return true;
+        esStopWord = true;
+        return esStopWord;
     }
-    else
-    {
-        return false;
+    return esStopWord;
+}
+
+void unir_listas(vector<string> &lista_1, vector<string> &lista_2)
+{
+    int tamanio_2 = (lista_2).size();
+    for (int indice = 0; indice < tamanio_2; indice++) {
+        (lista_1).push_back((lista_2)[indice]);
     }
 }
 
@@ -319,28 +367,22 @@ void calcularProbabilidadesDePalabras(map<string, float> &diccionarioT, map<stri
         }
         iterador ++;
     }
-
-//    Muestra por pantalla las palabras con su probabilidad
-//    map<string, float>::iterator iteradorM = probabilidades.begin();
-//    while (iteradorM != probabilidades.end())
-//    {
-//        cout << "La palabra  " << iteradorM->first << "  Tiene un promedio " << iteradorM->second << endl;
-//        iteradorM ++;
-//    }
 }
 
 /*Realiza la clasificacion correspondiente de un archivo con reviews */
-void clasificarReviewBayes(map<string, float> &probabilidadesP, map<string, float> &probabilidadesN, float reviewsTotales, float reviewsPositivos, float reviewsNegativos)
+void clasificarReviewBayes(map<string, float> &probabilidadesP, map<string, float> &probabilidadesN, float reviewsTotales, float reviewsPositivos, float reviewsNegativos, set<string> &listaStopWords)
 {
     ifstream archivo;
     ofstream archivoSalida;
     string word, id, review, numeroID;
-    char c;
-    bool esStopWord, letra;
     double probabilidadReviewP, probabilidadReviewN, probabilidadDeSerPositivo, probabilidadDeSerNegativo, probabilidadTotal, probabilidadBayes;
     map<string, double> reviewsClasificadosPositivos;
     map<string, double> reviewsClasificadosNegativos;
     map<string, double> reviewsSinClasificar;
+    vector<string> listaPalabras;
+    vector<string> listaReview;
+    vector<string> listaReviewBigrama;
+    vector<string> listaReviewTrigrama;
 
     probabilidadReviewP = (reviewsPositivos/reviewsTotales);
     probabilidadReviewN = (reviewsNegativos/reviewsTotales);
@@ -361,50 +403,40 @@ void clasificarReviewBayes(map<string, float> &probabilidadesP, map<string, floa
 
     archivoSalida << "\"id\",\"sentiment\"" << endl;
 
-    while(!archivo.eof())
+    while(true)
     {
         getline(archivo, id,'\t' );  // Lee el ID hasta el TAB
         numeroID = id;
         getline(archivo, review, '\n' ); // Lee el review
+        if (archivo.eof()) break;
         probabilidadDeSerPositivo = probabilidadReviewP;
         probabilidadDeSerNegativo = probabilidadReviewN;
-        for (unsigned int i = 0; i < review.size(); ++i)
+        review = filtrarReview(review, listaStopWords);
+        listaPalabras = split(review, ' ');
+        listaReview = construirNGrama(listaPalabras, 1);
+        listaReviewBigrama = construirNGrama(listaPalabras, 2);
+        listaReviewTrigrama = construirNGrama(listaPalabras, 3);
+
+        unir_listas(listaReview, listaReviewBigrama);
+        unir_listas(listaReview, listaReviewTrigrama);
+
+        for (unsigned int i = 0; i < listaReview.size(); i++)
         {
-            c = review[i];
-            c = tolower(c);
-            letra = esLetra(c);
-
-            if(!letra)
+            word = listaReview[i];
+            // Busco si aparece esa palabra en las probabilidades Positivas y sumo el logaritmo de su probabilidad
+            map<string, float>::iterator iteradorP = probabilidadesP.find(word);
+            if(iteradorP != probabilidadesP.end())
             {
-                if(!word.empty())
-                {
-                    esStopWord = false;
-                    esStopWord = buscarStopWord(word);
-                    if(!esStopWord)
-                    {
-                        // Busco si aparece esa palabra en las probabilidades Positivas y sumo el logaritmo de su probabilidad
-                        map<string, float>::iterator iteradorP = probabilidadesP.find(word);
-                        if(iteradorP != probabilidadesP.end())
-                        {
-                            probabilidadDeSerPositivo += log(iteradorP->second);
-                        }
-
-                        // Busco si aparece esa palabra en las probabilidades Negativas y sumo el logaritmo de su probabilidad
-                        map<string, float>::iterator iteradorN = probabilidadesN.find(word);
-                        if(iteradorN != probabilidadesN.end())
-                        {
-                            probabilidadDeSerNegativo += log(iteradorN->second);
-                        }
-                        word.clear();
-                    }
-                }
+                probabilidadDeSerPositivo += log(iteradorP->second);
             }
-            else
+
+            // Busco si aparece esa palabra en las probabilidades Negativas y sumo el logaritmo de su probabilidad
+            map<string, float>::iterator iteradorN = probabilidadesN.find(word);
+            if(iteradorN != probabilidadesN.end())
             {
-                word += c;
+                probabilidadDeSerNegativo += log(iteradorN->second);
             }
         }
-
         probabilidadTotal = (probabilidadDeSerPositivo + probabilidadDeSerNegativo);
         //Verifico si el review es Positivo o Negativo
         if((probabilidadDeSerPositivo != 0) && (probabilidadDeSerNegativo !=0))
@@ -431,7 +463,11 @@ void clasificarReviewBayes(map<string, float> &probabilidadesP, map<string, floa
     archivo.close();
     archivoSalida.close();
 
-    //Muestro los resultados por pantalla
+    mostrarResultadosPorPantalla(reviewsClasificadosPositivos, reviewsClasificadosNegativos, reviewsSinClasificar);
+}
+
+void mostrarResultadosPorPantalla(map<string, double> reviewsClasificadosPositivos, map<string, double> reviewsClasificadosNegativos, map<string, double> reviewsSinClasificar)
+{
     map<string, double>::iterator iteradorReviewsP = reviewsClasificadosPositivos.begin();
     while (iteradorReviewsP != reviewsClasificadosPositivos.end())
     {
@@ -446,8 +482,8 @@ void clasificarReviewBayes(map<string, float> &probabilidadesP, map<string, floa
         iteradorReviewsN ++;
     }
 
-    cout << "Se han encontrado: " << reviewsClasificadosPositivos.size() << "reviews positivos" << endl;
-    cout << "Se han encontrado: " << reviewsClasificadosNegativos.size() << "reviews negativos" << endl;
+    cout << "Se han encontrado: " << reviewsClasificadosPositivos.size() << " reviews positivos" << endl;
+    cout << "Se han encontrado: " << reviewsClasificadosNegativos.size() << " reviews negativos" << endl;
     cout << "Se han encontrado: " << reviewsSinClasificar.size() << " reviews sin clasificar" << endl;
     cout << "El total de reviews clasificados fue: " << reviewsClasificadosPositivos.size() + reviewsClasificadosNegativos.size() + reviewsSinClasificar.size() << endl;
 }

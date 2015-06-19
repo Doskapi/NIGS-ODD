@@ -1,0 +1,6 @@
+# depslib dependency file v1.0
+1434661816 source:/home/nacho/IncrementadorSetDatos/main.cpp
+	<iostream>
+	<fstream>
+	<string>
+
