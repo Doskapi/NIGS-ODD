@@ -21,12 +21,12 @@ void mergeDeProbabilidadesPorProrcentajeDeArchivo(const char* direccionDelArchiv
     ofstream archResultados;
     string idPer, clasifPer;
     string idBay, clasifBay;
-    map<string,float> mapaPer, mapaBay;
+    map<string,double> mapaPer, mapaBay;
 
-    float probabilidadPer, probabilidadBay, resultado;
+    double probabilidadPer, probabilidadBay, resultado;
 
-    int porcentajeEnteroPer, porcentajeEnteroBay;
-    float porcentajePer, porcentajeBay;
+    double porcentajeEnteroPer, porcentajeEnteroBay;
+    double porcentajePer, porcentajeBay;
     cout << "+++++++++++++++++++++++++++++++++++++++++++" << endl;
     cout << "+            Proceso de Merge             +" << endl;
     cout << "+++++++++++++++++++++++++++++++++++++++++++" << endl << endl;
@@ -34,10 +34,10 @@ void mergeDeProbabilidadesPorProrcentajeDeArchivo(const char* direccionDelArchiv
     cout << "Porcentaje(%): ";
     cin >> porcentajeEnteroPer;
     cout << endl;
-    cout << "El porcentaje(%) del Naive-Bayes sera: " << 100-porcentajeEnteroPer << endl;
-    porcentajeEnteroBay = 100-porcentajeEnteroPer;
-    porcentajePer = (float)porcentajeEnteroPer/100;
-    porcentajeBay = (float)porcentajeEnteroBay/100;
+    cout << "El porcentaje(%) del Naive-Bayes sera: " << 100.0 - porcentajeEnteroPer << endl;
+    porcentajeEnteroBay = 100.0 - porcentajeEnteroPer;
+    porcentajePer = (double)porcentajeEnteroPer/100.0;
+    porcentajeBay = (double)porcentajeEnteroBay/100.0;
 
 
     archPerceptron.open(direccionDelArchivoDeResultadosPerceptron);
@@ -63,32 +63,49 @@ void mergeDeProbabilidadesPorProrcentajeDeArchivo(const char* direccionDelArchiv
     archResultados << idPer << "," << clasifPer << endl;
 
     while (true) {
-        if (archPerceptron.eof()) break;
+
         getline(archPerceptron, idPer, ',' );
         getline(archPerceptron, clasifPer, '\n' );
-        probabilidadPer = (float) atof(clasifPer.c_str());
+        if (archPerceptron.eof()) break;
+        probabilidadPer = (double) atof(clasifPer.c_str());
         mapaPer[idPer] = probabilidadPer;
     }
 
     while (true) {
-        if (archNaiveBayes.eof()) break;
+
         getline(archNaiveBayes, idBay, ',' );
         getline(archNaiveBayes, clasifBay, '\n' );
-        probabilidadBay = (float) atof(clasifBay.c_str());
+        if (archNaiveBayes.eof()) break;
+        probabilidadBay = (double) atof(clasifBay.c_str());
         mapaBay[idBay] = probabilidadBay;
     }
 
-    map<string,float>::iterator itPer = mapaPer.begin();
-    map<string,float>::iterator itBay = mapaBay.begin();
+    map<string,double>::iterator itPer = mapaPer.begin();
+    map<string,double>::iterator itBay = mapaBay.begin();
 
     cout << endl;
 
+    int cantPos = 0 , cantNeg = 0 , cantTotal;
+
     while( itPer != mapaPer.end() ){
+        cantTotal ++;
 
         resultado = porcentajePer * (itPer->second) + porcentajeBay * (itBay->second);
+
+        if (resultado >= 0.5){
+            cantPos++;
+        }   else {
+            cantNeg++;
+        }
+
+        if ((resultado > 1)||(resultado < 0)){
+            cout << "alerta" << endl;
+        }
+
         if (itPer->first != itBay->first){
             cout << itPer->first << itPer->second << "  " << itBay->first << itBay->second << "  " << resultado << endl;
         }
+
 
         archResultados << itPer->first << "," << resultado << endl;
 
@@ -97,6 +114,8 @@ void mergeDeProbabilidadesPorProrcentajeDeArchivo(const char* direccionDelArchiv
     }
 
     cout << "Archivo merge generado.\n" << endl;
+
+    cout << "Estadistica: " << cantPos << " " << cantNeg << " " << cantTotal << endl;
 
     archPerceptron.close();
     archNaiveBayes.close();
@@ -203,8 +222,8 @@ void mergeDeProbabilidadesSegunDistancia(const char* direccionDelArchivoDeResult
 
 int main()
 {
-    mergeDeProbabilidadesPorProrcentajeDeArchivo(ARCH_RESULTADOS_PERCEPTRON, ARCH_RESULTADOS_PERCEPTRON, ARCH_RESULTADOS_MERGE_PORCENTAJE);
-    mergeDeProbabilidadesSegunDistancia(ARCH_RESULTADOS_PERCEPTRON, ARCH_RESULTADOS_PERCEPTRON, ARCH_RESULTADOS_MERGE_DISTANCIA);
+    mergeDeProbabilidadesPorProrcentajeDeArchivo(ARCH_RESULTADOS_PERCEPTRON, ARCH_RESULTADOS_BAYES , ARCH_RESULTADOS_MERGE_PORCENTAJE);
+    mergeDeProbabilidadesSegunDistancia(ARCH_RESULTADOS_PERCEPTRON, ARCH_RESULTADOS_BAYES , ARCH_RESULTADOS_MERGE_DISTANCIA);
 
     return 0;
 }

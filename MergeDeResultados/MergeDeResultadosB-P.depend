@@ -1,0 +1,21 @@
+# depslib dependency file v1.0
+1434658902 source:/home/guillermo/NIGS-ODD/MergeDeResultadosB-P/main.cpp
+	<iostream>
+	<vector>
+	<utility>
+	<fstream>
+	<string>
+	<map>
+	<cstdlib>
+	<sstream>
+
+1434775258 source:/home/nicolas/Escritorio/MergeDeResultadosB-P/MergeDeResultadosB-P/main.cpp
+	<iostream>
+	<vector>
+	<utility>
+	<fstream>
+	<string>
+	<map>
+	<cstdlib>
+	<sstream>
+
