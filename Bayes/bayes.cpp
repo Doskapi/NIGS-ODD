@@ -28,7 +28,7 @@ void mostrarDiccionariosDeReviews(map<string, float> &diccionarioT, map<string, 
 void calcularProbabilidadesDePalabras(map<string, float> &diccionarioT, map<string, float> &diccionario, map<string, float> &probabilidades);
 void clasificarReviewBayes(map<string, float> &probabilidadesP, map<string, float> &probabilidadesN, float reviewsTotales, float reviewsPositivos, float reviewsNegativos, set<string> &listaStopWords);
 void mostrarResultadosPorPantalla(map<string, double> reviewsClasificadosPositivos, map<string, double> reviewsClasificadosNegativos, map<string, double> reviewsSinClasificar);
-void unir_listas(vector<string> &lista_1, vector<string> &lista_2);
+void unir_listas(vector<string> &lista1, vector<string> &lista2);
 
 int main()
 {
@@ -52,8 +52,8 @@ int main()
 
     return 0;
 }
-
-/* Cuenta la cantidad de reviews positivos y negativos */
+/* PRE: Se abre un archivo con reviews ya clasificados 
+   POST: Retorna la cantidad de reviews positivos y negativos. */
 void contarReviews(float &reviewsTotales, float &reviewsPositivos, float &reviewsNegativos)
 {
     ifstream archivo;
@@ -93,11 +93,11 @@ void contarReviews(float &reviewsTotales, float &reviewsPositivos, float &review
     cout << "En total hay  " << reviewsNegativos << " reviews negativos" << endl;
 }
 
-/*Inicializa 3 diccionarios:
-- DiccionarioT : Contiene todas las palabras que aparecen en los reviews con sus cantidades
-- DiccionarioP : Contiene todas las palabras que aparecen en los reviews positivos con sus cantidades
-- DiccionarioN : Contiene todas las palabras que aparecen en los reviews negativos con sus cantidades
-*/
+/* PRE: Se abre un archivo con reviews ya clasificados
+   POST: Inicializa 3 diccionarios:
+- DiccionarioT : Contiene todas las palabras que aparecen en los reviews con sus cantidades.
+- DiccionarioP : Contiene todas las palabras que aparecen en los reviews positivos con sus cantidades.
+- DiccionarioN : Contiene todas las palabras que aparecen en los reviews negativos con sus cantidades. */
 void crearDiccionariosDeReviews(map<string, float> &diccionarioT, map<string, float> &diccionarioP, map<string, float> &diccionarioN, set<string> &listaStopsWords)
 {
     ifstream archivo;
@@ -139,6 +139,8 @@ void crearDiccionariosDeReviews(map<string, float> &diccionarioT, map<string, fl
     archivo.close();
  }
 
+/* PRE: Recibe un review extraido del archivo a entrenar o a clasificar.
+   POST: Retorna el review filtrando los caracteres que no son letras, eliminando mayusculas y stopwords. */
 string filtrarReview(string &review, set<string> &listaStopWords)
 {
     string cadena = "";
@@ -190,6 +192,8 @@ vector<string> &split(const string &s, char delim, vector<string> &elems)
     return elems;
 }
 
+/* PRE: Recibe un review en forma de string ya filtrado.
+   POST: Retorna un vector con todas las palabras del review separadas. */
 vector<string> split(const string &s, char delim)
 {
     vector<string> elems;
@@ -197,6 +201,8 @@ vector<string> split(const string &s, char delim)
     return elems;
 }
 
+/* PRE: Recibe un vector con todas las palabras del review separadas y ya filtradas y el tamaño del N grama.
+   POST: Retorna un vector con N gramas. */
 vector<string> construirNGrama(vector<string> &listaPalabras, int tamanioNgrama)
 {
     int cantPalabras = (listaPalabras).size();
@@ -214,6 +220,8 @@ vector<string> construirNGrama(vector<string> &listaPalabras, int tamanioNgrama)
     return listaNGramas;
 }
 
+/* PRE: Se reciben los diccionarios de palabras, el vector de palabras o N gramas correspondiente ya filtrado y la clasificacion del review.
+   POST: Se agregan las palabras al diccionarioT con todas las palabras y al diccionario correspondiente segun su clasificacion. */
 void agregarADiccionarios(map<string, float> &diccionarioT, map<string, float> &diccionarioP, map<string, float> &diccionarioN, vector<string> word, bool esPositivo, bool esNegativo)
 {
     agregarADiccionario(diccionarioT, word);
@@ -227,6 +235,8 @@ void agregarADiccionarios(map<string, float> &diccionarioT, map<string, float> &
     }
  }
 
+/* PRE: Se recibe un diccionario y el vector de palabras o N gramas a agregar en el.
+   POST: Se agregar las palabras o N gramas al diccionario. */
  void agregarADiccionario(map<string, float> &diccionario, vector<string> listaNGramas)
  {
     float cant;
@@ -248,7 +258,8 @@ void agregarADiccionarios(map<string, float> &diccionarioT, map<string, float> &
     }
  }
 
- /* Filtra de los diccionarios aquellas palabras que aparezcan menos de FILTRO veces */
+ /* PRE: Se reciben todos los diccionarios de palabras o N gramas ya inicializados correctamente con todos los reviews. 
+    POST: Se eliminan aquellas palabras o N gramas que aparecen menos de FILTRO veces. */
 void filtrarDiccionariosDeReviews(map<string, float> &diccionarioT, map<string, float> &diccionarioP, map<string, float> &diccionarioN)
 {
      filtrarDiccionario(diccionarioT);
@@ -256,7 +267,8 @@ void filtrarDiccionariosDeReviews(map<string, float> &diccionarioT, map<string, 
      filtrarDiccionario(diccionarioN);
 }
 
-/* Filtra un diccionario aquellas palabras que aparezcan menos de FILTRO veces */
+/* PRE: Se recibe un diccionario con palabras o N gramas.
+   POST: Se eliminan aquellas palabras o N gramas que aparecen menos de FILTRO veces. */
 void filtrarDiccionario(map<string, float> &diccionario)
 {
     map<string, float>::iterator iterador;
@@ -272,10 +284,10 @@ void filtrarDiccionario(map<string, float> &diccionario)
      }
 }
 
- /* Muestra por pantalla los diccionarios con las palabras y sus cantidades */
+ /* PRE: Se reciben todos los diccionarios con palabras o N gramas ya inicializados con todos los reviews.
+    POST: Muestra por pantalla los diccionarios con las palabras o N gramas y su frecuencia de aparicion. */
  void mostrarDiccionariosDeReviews(map<string, float> &diccionarioT, map<string, float> &diccionarioP, map<string, float> &diccionarioN)
  {
-     //Muestra el diccionario completo por pantalla
     map<string, float>::iterator iterador = diccionarioT.begin();
     while (iterador != diccionarioT.end() )
     {
@@ -288,6 +300,8 @@ void filtrarDiccionario(map<string, float> &diccionario)
     cout << "En total se encontraron: " << diccionarioN.size() <<" palabras negativas"<< endl;
  }
 
+/* PRE: El archivo con la lista de stop Words existe.
+   POST: Se inicializa un set con todos los stop Words leidos del archivo. */
 set<string> crearListaDeStopWords()
 {
     set<string> listaStopsWords;
@@ -309,7 +323,8 @@ set<string> crearListaDeStopWords()
     return listaStopsWords;
 }
 
-/* Retorna true si la palabra es un stopWord, caso contrario retorna false */
+/* PRE: Se recibe una palabra y la lista de stop words que ya fue inicializada.
+   POST: Retorna true si la palabra es un stopWord, caso contrario retorna false. */
 bool esStopWord(string palabra, set<string> &listaStopWords)
 {
     bool esStopWord;
@@ -323,15 +338,18 @@ bool esStopWord(string palabra, set<string> &listaStopWords)
     return esStopWord;
 }
 
-void unir_listas(vector<string> &lista_1, vector<string> &lista_2)
+/* PRE: Recibe dos listas con vectores de palabras y N gramas ya inicializados.
+   POST: Une ambas listas, concatenando la segunda con la primera. */
+void unir_listas(vector<string> &lista1, vector<string> &lista2)
 {
-    int tamanio_2 = (lista_2).size();
-    for (int indice = 0; indice < tamanio_2; indice++) {
-        (lista_1).push_back((lista_2)[indice]);
+    int tamanio2 = (lista2).size();
+    for (int indice = 0; indice < tamanio2; indice++) {
+        (lista1).push_back((lista2)[indice]);
     }
 }
 
-/* Calcula las probabilidades de todas las palabras positivas */
+/* PRE: Se recibe el diccionario de palabras o N gramas totales, el diccionario positivo o negativo ya inicializados y el diccionario de probabilidades.
+   POST: Calcula la probabilidad de aparicion de cada palabra en un review positivo o negativo, siempre incrementando en 1 su frecuencia. */
 void calcularProbabilidadesDePalabras(map<string, float> &diccionarioT, map<string, float> &diccionario, map<string, float> &probabilidades)
 {
     float palabrasTotales, palabrasACalcularProbabilidad, cantidad, total, promedio;
@@ -369,7 +387,8 @@ void calcularProbabilidadesDePalabras(map<string, float> &diccionarioT, map<stri
     }
 }
 
-/*Realiza la clasificacion correspondiente de un archivo con reviews */
+/*PRE: Se abre un archivo con un review sin clasificar, se reciben los diccionarios de palabras o N gramas ya inicializados, las probabilidades ya calculadas.
+  POST: Realiza la clasificacion correspondiente de los reviews del archivo en positiva o negativa, escribiendo el archivo de salida con sus resultados. */
 void clasificarReviewBayes(map<string, float> &probabilidadesP, map<string, float> &probabilidadesN, float reviewsTotales, float reviewsPositivos, float reviewsNegativos, set<string> &listaStopWords)
 {
     ifstream archivo;
@@ -466,6 +485,8 @@ void clasificarReviewBayes(map<string, float> &probabilidadesP, map<string, floa
     mostrarResultadosPorPantalla(reviewsClasificadosPositivos, reviewsClasificadosNegativos, reviewsSinClasificar);
 }
 
+/* PRE: Se reciben los diccionarios de los reviews ya clasificados.
+   POST: Se muetran por pantalla los resultados de la clasificacion. */
 void mostrarResultadosPorPantalla(map<string, double> reviewsClasificadosPositivos, map<string, double> reviewsClasificadosNegativos, map<string, double> reviewsSinClasificar)
 {
     map<string, double>::iterator iteradorReviewsP = reviewsClasificadosPositivos.begin();
