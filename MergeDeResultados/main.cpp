@@ -1,3 +1,4 @@
+/**Inclusiones necesarias**/
 #include <iostream>
 #include <vector>
 #include <utility>
@@ -9,13 +10,18 @@
 
 using namespace std;
 
+/**Definiciones necesarias**/
 #define ARCH_RESULTADOS_PERCEPTRON "archivos/resultadosPerceptron.csv"
 #define ARCH_RESULTADOS_BAYES "archivos/resultadosBayes.csv"
 #define ARCH_RESULTADOS_MERGE_PORCENTAJE "archivos/resultadosMergePorcentaje.csv"
-#define ARCH_RESULTADOS_MERGE_DISTANCIA "archivos/resultadosMergeDistancia.csv"
+#define ARCH_RESULTADOS_PERCEPTRON_ORDENADO "archivos/resultadosPerceptronOrdenado.csv"
+#define ARCH_RESULTADOS_BAYES_ORDENADO "archivos/resultadosBayesOrdenado.csv"
+#define ARCH_RESULTADOS_MERGE_PORCENTAJE_ORDENADO "archivos/resultadosMergePorcentajeOrdenado.csv"
+#define ARCH_TEST_DATA "archivos/testData.tsv"
 
-
-void mergeDeProbabilidadesPorProrcentajeDeArchivo(const char* direccionDelArchivoDeResultadosPerceptron, const char* direccionDelArchivoDeResultadosNaiveBayes, const char* direccionDelArchivoDeResultadosMerge) {
+/**Combina dos soluciones de manera que en cada cada solucion en multiplicada por un peso.**/
+void mergeDeProbabilidadesPorProrcentajeDeArchivo(const char* direccionDelArchivoDeResultadosPerceptron, const char* direccionDelArchivoDeResultadosNaiveBayes, const char* direccionDelArchivoDeResultadosMerge)
+{
     ifstream archPerceptron;
     ifstream archNaiveBayes;
     ofstream archResultados;
@@ -120,110 +126,89 @@ void mergeDeProbabilidadesPorProrcentajeDeArchivo(const char* direccionDelArchiv
     archPerceptron.close();
     archNaiveBayes.close();
     archResultados.close();
-
 }
 
-
-void mergeDeProbabilidadesSegunDistancia(const char* direccionDelArchivoDeResultadosPerceptron, const char* direccionDelArchivoDeResultadosNaiveBayes, const char* direccionDelArchivoDeResultadosMerge) {
-    ifstream archPerceptron;
-    ifstream archNaiveBayes;
-    ofstream archResultados;
-    string idPer, clasifPer;
+/**Dado la URL de un archivo entrada y una URL de salida se ordena de manera tal que los archivos sean ordenados
+De la misma manera que testData.tsv.**/
+void ordenarUnArchivo(const char* direccionDelArchivoViejo,const char* direccionDelArchivoOrdenado)
+{
+    ifstream archViejo;
+    ifstream archTest;
+    ofstream archOrdenado;
+    string idViejo, clasifViejo;
     string idBay, clasifBay;
-    map<string,float> mapaPer, mapaBay;
-    float probabilidadPer ,probabilidadBay;
+    map<string,double> mapaViejo;
 
-    cout << "+++++++++++++++++++++++++++++++++++++++++++" << endl;
-    cout << "+     Proceso de Merge por Distancias     +" << endl;
-    cout << "+++++++++++++++++++++++++++++++++++++++++++" << endl << endl;
+    double probabilidad;
 
-    archPerceptron.open(direccionDelArchivoDeResultadosPerceptron);
-    if (archPerceptron.fail()) {
+    archViejo.open(direccionDelArchivoViejo);
+    if (archViejo.fail()) {
         cout << "No se ha podido abrir el archivo de clasificaciones del Perceptron!" << endl;
     }
 
-    archNaiveBayes.open(direccionDelArchivoDeResultadosNaiveBayes);
-    if (archNaiveBayes.fail()) {
+    archOrdenado.open(direccionDelArchivoOrdenado);
+    if (archOrdenado.fail()) {
         cout << "No se ha podido abrir el archivo de clasificaciones del Naive-Bayes!" << endl;
     }
+    /**Borra el archivo anterior**/
+    archOrdenado.clear();
 
-    archResultados.open(direccionDelArchivoDeResultadosMerge);
-    archResultados.clear();
+    archTest.open(ARCH_TEST_DATA);
+    if (archTest.fail()) {
+        cout << "No se ha podido abrir el archivo de clasificaciones del TestData!" << endl;
+    }
 
     //Extraigo el encabezado de cada archivo.
-    getline(archPerceptron, idPer, ',' );
-    getline(archNaiveBayes, idBay, ',' );
-    getline(archPerceptron, clasifPer, '\n' );
-    getline(archNaiveBayes, clasifBay, '\n' );
-
-    // escribo la primera linea del archivo
-    archResultados << idPer << "," << clasifPer << endl;
+    getline(archViejo, idViejo, ',' );
+    getline(archViejo, clasifViejo, '\n' );
 
     while (true) {
-        if (archPerceptron.eof()) break;
-        getline(archPerceptron, idPer, ',' );
-        getline(archPerceptron, clasifPer, '\n' );
-        probabilidadPer = (float) atof(clasifPer.c_str());
-        mapaPer[idPer] = probabilidadPer;
-    }
 
-    while (true) {
-        if (archNaiveBayes.eof()) break;
-        getline(archNaiveBayes, idBay, ',' );
-        getline(archNaiveBayes, clasifBay, '\n' );
-        probabilidadBay = (float) atof(clasifBay.c_str());
-        mapaBay[idBay] = probabilidadBay;
+        getline(archViejo, idViejo, ',' );
+        getline(archViejo, clasifViejo, '\n' );
+        if (archViejo.eof()) break;
+        probabilidad = (double) atof(clasifViejo.c_str());
+        mapaViejo[idViejo] = probabilidad;
     }
-
-    map<string,float>::iterator itPer = mapaPer.begin();
-    map<string,float>::iterator itBay = mapaBay.begin();
-    float difPer, difBay;
     cout << endl;
 
-    while( itPer != mapaPer.end() ){
-        if ( ((itPer->second >= 0.5) && (itBay->second < 0.5)) || ((itBay->second >= 0.5) && (itPer->second < 0.5)) ){
-            if ((itPer->second >= 0.5) && (itBay->second < 0.5)) {
-                difPer = itPer->second - 0.5; //pos
-                difBay = 0.5 - itBay->second;  //neg
-                if(difPer > difBay){
-                    //difPer es la mas lejos
-                    archResultados << itPer->first << "," << itPer->second << endl;
-                }else{
-                    // difBay es la mas lejos
-                    archResultados << itBay->first << "," << itBay->second << endl;
-                }
-            }else{
-                difBay = itBay->second - 0.5; //pos
-                difPer = 0.5 - itPer->second;  //neg
-                if(difPer > difBay){
-                    //difPer es la mas lejos
-                    archResultados << itPer->first << "," << itPer->second << endl;
-                }else{
-                    // difBay es la mas lejos
-                    archResultados << itBay->first << "," << itBay->second << endl;
-                }
-            }
-        }else{
-            // escribo uno de los dos total son iguales
-            archResultados << itPer->first << "," << itPer->second << endl;
+    getline(archTest, idViejo, '\t' );
+    getline(archTest, clasifViejo, '\n' );
+
+    while(!archTest.eof()){
+        getline(archTest, idViejo, '\t' );
+        getline(archTest, clasifViejo, '\n');
+        // escribo la primera linea del archivo
+        if (idViejo != "")
+        {
+            archOrdenado << mapaViejo[idViejo] << endl;
         }
-        itPer++;
-        itBay++;
     }
 
-    cout << "Archivo merge generado.\n" << endl;
+    cout << "Archivo resultados ordenado guardado" << endl;
+    cout << "en la direccion: " << direccionDelArchivoOrdenado << endl;
 
-    archPerceptron.close();
-    archNaiveBayes.close();
-    archResultados.close();
-
+    archViejo.close();
+    archOrdenado.close();
+    archTest.close();
 }
 
+//Ordena todos los resultados para que mantengan el orden de TestData.tsv
+void ordenarResultados()
+{
+    cout << "+++++++++++++++++++++++++++++++++++++++++++" << endl;
+    cout << "+            Proceso de Ordenado          +" << endl;
+    cout << "+++++++++++++++++++++++++++++++++++++++++++" << endl << endl;
+    cout << "Ordenando los resultados" << endl;
+    cout << endl;
+    ordenarUnArchivo(ARCH_RESULTADOS_PERCEPTRON,ARCH_RESULTADOS_PERCEPTRON_ORDENADO);
+    ordenarUnArchivo(ARCH_RESULTADOS_BAYES,ARCH_RESULTADOS_BAYES_ORDENADO);
+    ordenarUnArchivo(ARCH_RESULTADOS_MERGE_PORCENTAJE,ARCH_RESULTADOS_MERGE_PORCENTAJE_ORDENADO);
+}
 
 int main()
 {
     mergeDeProbabilidadesPorProrcentajeDeArchivo(ARCH_RESULTADOS_PERCEPTRON, ARCH_RESULTADOS_BAYES , ARCH_RESULTADOS_MERGE_PORCENTAJE);
-    mergeDeProbabilidadesSegunDistancia(ARCH_RESULTADOS_PERCEPTRON, ARCH_RESULTADOS_BAYES , ARCH_RESULTADOS_MERGE_DISTANCIA);
-
+    ordenarResultados();
     return 0;
 }
